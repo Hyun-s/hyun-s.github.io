@@ -127,7 +127,6 @@ const Calendar = () => {
 
   const closeEventForm = () => {
     setShowEventForm(false);
-    setSelectedDate(null);
     setEventForm({
       title: '',
       time: '',
