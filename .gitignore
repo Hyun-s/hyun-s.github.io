@@ -8,6 +8,7 @@
 
 # production
 /build
+/public
 
 # misc
 .DS_Store
@@ -24,6 +25,16 @@
 
 # Local files
 .env
+
+# Hugo specific
+.archetypes
+.layouts
+.content
+.data
+.i18n
+.static
+.themes
+.hugo_cache
 
 # GitHub Actions
 .github/workflows/*

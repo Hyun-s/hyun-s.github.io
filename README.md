@@ -1,6 +1,6 @@
-# Hyunsoo Han's Personal Website
+# Hyunsoo Han - Personal Website (Hugo Version)
 
-This is a personal website for Hyunsoo Han, featuring a CV and calendar. The site is built using React and follows the structure of the JJ000n.github.io project.
+This is a Hugo-based personal website for Hyunsoo Han, following the structure inspired by JJ000n.github.io.
 
 ## Features
 
@@ -10,59 +10,68 @@ This is a personal website for Hyunsoo Han, featuring a CV and calendar. The sit
 - Persistent storage using localStorage
 - Responsive design for all device sizes
 
-## Technologies Used
-
-- React.js
-- React Router
-- CSS Modules
-
 ## Structure
 
-The project follows the standard React project structure:
-
 ```
-src/
-├── components/
-│   └── Header.js
-├── pages/
-│   ├── Home.js
-│   ├── CV.js
-│   └── Calendar.js
-├── assets/
-├── hooks/
-├── services/
-└── types/
+hyun-s-hugo-site/
+├── content/
+│   ├── _index.md              # Home page
+│   ├── cv/
+│   │   └── _index.md          # CV page
+│   └── calendar/
+│       └── _index.md          # Calendar page
+├── layouts/
+│   ├── _default/
+│   │   ├── baseof.html        # Base template
+│   │   ├── single.html        # Single page template
+│   │   └── list.html          # List page template
+│   ├── partials/
+│   │   ├── header.html        # Header partial
+│   │   ├── footer.html        # Footer partial
+│   │   └── nav.html           # Navigation partial
+│   └── index.html             # Homepage template
+├── static/
+│   ├── css/
+│   │   └── style.css          # Styles
+│   └── js/
+│       └── main.js            # Scripts
+├── config.toml                # Hugo configuration
+└── README.md                  # This file
 ```
 
 ## Getting Started
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start the development server: `npm start`
+1. Install Hugo (version 0.124.1 or later)
+2. Clone this repository
+3. Run `hugo server` to start development server
+4. Build with `hugo` for production
 
 ## Deployment
-
-### Manual Deployment
-```bash
-# Install gh-pages dependency
-npm install --save-dev gh-pages
-
-# Deploy to GitHub Pages
-npm run deploy
-```
 
 ### GitHub Actions Deployment (Automated)
 This repository is configured to automatically deploy to GitHub Pages on every push to the main branch.
 
-## Access
-Once deployed, your site will be accessible at:
-- Main Page: https://hyun-s.github.io/hyun-s.github.io
-- Calendar: https://hyun-s.github.io/hyun-s.github.io/calendar
+The deployment process:
+1. Hugo builds the site (hugo --minify)
+2. GitHub Actions deploys the built site to the gh-pages branch
+3. GitHub Pages serves content from the gh-pages branch
 
-## Calendar Features
-- Click on any date to add events/tasks
-- View events for each day
-- Events are saved locally in your browser
+### Manual Deployment
+```bash
+# Install Hugo
+# Run hugo to build the site
+hugo
+
+# The built site will be in the 'public' directory
+# Push to GitHub to trigger automated deployment
+```
+
+## Technologies Used
+
+- Hugo (static site generator)
+- HTML5/CSS3
+- JavaScript with localStorage
+- Responsive design
 
 ## Author
 
