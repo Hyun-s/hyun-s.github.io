@@ -31,3 +31,4 @@ jobs:
         publish_branch: gh-pages
         force_orphan: true
         allow_empty_commit: true
+        cname: hyun-s.github.io
