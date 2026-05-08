@@ -1,40 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Calendar.css';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [events, setEvents] = useState([]);
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [eventForm, setEventForm] = useState({
+    title: '',
+    time: '',
+    description: '',
+    date: ''
+  });
 
-  // Sample events data (this would normally come from an API)
-  const sampleEvents = [
-    {
-      id: 1,
-      title: 'Research Meeting',
-      date: '2026-05-15',
-      time: '10:00 AM',
-      description: 'Weekly research meeting with team'
-    },
-    {
-      id: 2,
-      title: 'Conference Call',
-      date: '2026-05-18',
-      time: '2:00 PM',
-      description: 'Collaboration with international partners'
-    },
-    {
-      id: 3,
-      title: 'Paper Submission Deadline',
-      date: '2026-05-25',
-      time: '11:59 PM',
-      description: 'Submit paper to NeurIPS conference'
-    },
-    {
-      id: 4,
-      title: 'Lab Workshop',
-      date: '2026-06-02',
-      time: '9:00 AM',
-      description: 'Internal workshop on new compression techniques'
+  // Load events from localStorage on component mount
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('calendarEvents');
+    if (savedEvents) {
+      setEvents(JSON.parse(savedEvents));
     }
-  ];
+  }, []);
+
+  // Save events to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('calendarEvents', JSON.stringify(events));
+  }, [events]);
 
   const getDaysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -58,6 +48,47 @@ const Calendar = () => {
     setCurrentDate(newDate);
   };
 
+  const handleDateClick = (day) => {
+    const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    setSelectedDate(clickedDate);
+    setEventForm({
+      ...eventForm,
+      date: clickedDate.toISOString().split('T')[0]
+    });
+    setShowEventForm(true);
+  };
+
+  const handleEventSubmit = (e) => {
+    e.preventDefault();
+    if (eventForm.title && eventForm.date) {
+      const newEvent = {
+        id: Date.now(),
+        ...eventForm
+      };
+      setEvents([...events, newEvent]);
+      setEventForm({
+        title: '',
+        time: '',
+        description: '',
+        date: ''
+      });
+      setShowEventForm(false);
+    }
+  };
+
+  const handleEventInputChange = (e) => {
+    const { name, value } = e.target;
+    setEventForm({
+      ...eventForm,
+      [name]: value
+    });
+  };
+
+  const getEventsForDate = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return events.filter(event => event.date === dateStr);
+  };
+
   const renderCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDayOfMonth = getFirstDayOfMonth(currentDate);
@@ -71,16 +102,16 @@ const Calendar = () => {
 
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const dayEvents = sampleEvents.filter(event => event.date === dateStr);
+      const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const dayEvents = getEventsForDate(dateObj);
 
       days.push(
-        <td key={day} className="calendar-day">
+        <td key={day} className="calendar-day" onClick={() => handleDateClick(day)}>
           <div className="day-number">{day}</div>
           <div className="events-preview">
             {dayEvents.slice(0, 2).map(event => (
               <div key={event.id} className="event-preview">
-                {event.time} - {event.title}
+                {event.time || 'All day'} - {event.title}
               </div>
             ))}
             {dayEvents.length > 2 && (
@@ -94,6 +125,17 @@ const Calendar = () => {
     }
 
     return days;
+  };
+
+  const closeEventForm = () => {
+    setShowEventForm(false);
+    setSelectedDate(null);
+    setEventForm({
+      title: '',
+      time: '',
+      description: '',
+      date: ''
+    });
   };
 
   return (
@@ -120,22 +162,89 @@ const Calendar = () => {
         </div>
       </div>
 
+      {/* Event Form Modal */}
+      {showEventForm && (
+        <div className="modal-overlay" onClick={closeEventForm}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Add New Event</h3>
+            <form onSubmit={handleEventSubmit}>
+              <div className="form-group">
+                <label htmlFor="title">Event Title:</label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={eventForm.title}
+                  onChange={handleEventInputChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="date">Date:</label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={eventForm.date}
+                  onChange={handleEventInputChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="time">Time:</label>
+                <input
+                  type="time"
+                  id="time"
+                  name="time"
+                  value={eventForm.time}
+                  onChange={handleEventInputChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="description">Description:</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={eventForm.description}
+                  onChange={handleEventInputChange}
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="btn-primary">Add Event</button>
+                <button type="button" className="btn-secondary" onClick={closeEventForm}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="events-list">
         <h3>Upcoming Events</h3>
         <div className="events-container">
-          {sampleEvents.map(event => (
-            <div key={event.id} className="event-item">
-              <div className="event-date">
-                <div className="event-date-day">{new Date(event.date).getDate()}</div>
-                <div className="event-date-month">{new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</div>
-              </div>
-              <div className="event-details">
-                <h4>{event.title}</h4>
-                <p>{event.time} • {formatDate(new Date(event.date))}</p>
-                <p className="event-description">{event.description}</p>
-              </div>
-            </div>
-          ))}
+          {events.length === 0 ? (
+            <p>No events scheduled yet.</p>
+          ) : (
+            [...events]
+              .sort((a, b) => new Date(a.date) - new Date(b.date))
+              .map(event => (
+                <div key={event.id} className="event-item">
+                  <div className="event-date">
+                    <div className="event-date-day">{new Date(event.date).getDate()}</div>
+                    <div className="event-date-month">{new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</div>
+                  </div>
+                  <div className="event-details">
+                    <h4>{event.title}</h4>
+                    <p>{event.time || 'All day'} • {formatDate(new Date(event.date))}</p>
+                    {event.description && <p className="event-description">{event.description}</p>}
+                  </div>
+                </div>
+              ))
+          )}
         </div>
       </div>
     </div>

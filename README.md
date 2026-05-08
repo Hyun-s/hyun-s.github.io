@@ -5,7 +5,9 @@ This is a personal website for Hyunsoo Han, featuring a CV and calendar. The sit
 ## Features
 
 - Personal CV with education, experience, and publications
-- Interactive calendar showing upcoming events
+- Interactive calendar with event management
+- Add, view, and manage daily tasks and events
+- Persistent storage using localStorage
 - Responsive design for all device sizes
 
 ## Technologies Used
@@ -56,6 +58,11 @@ This repository is configured to automatically deploy to GitHub Pages on every p
 Once deployed, your site will be accessible at:
 - Main Page: https://hyun-s.github.io/hyun-s.github.io
 - Calendar: https://hyun-s.github.io/hyun-s.github.io/calendar
+
+## Calendar Features
+- Click on any date to add events/tasks
+- View events for each day
+- Events are saved locally in your browser
 
 ## Author
 
