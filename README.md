@@ -40,7 +40,22 @@ src/
 
 ## Deployment
 
-This site can be deployed to GitHub Pages or any static hosting service.
+### Manual Deployment
+```bash
+# Install gh-pages dependency
+npm install --save-dev gh-pages
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+### GitHub Actions Deployment (Automated)
+This repository is configured to automatically deploy to GitHub Pages on every push to the main branch.
+
+## Access
+Once deployed, your site will be accessible at:
+- Main Page: https://hyun-s.github.io/hyun-s.github.io
+- Calendar: https://hyun-s.github.io/hyun-s.github.io/calendar
 
 ## Author
 
