@@ -1,5 +1,5 @@
-// JavaScript for Hyunsoo Han's Personal Website Calendar
-// This will handle calendar functionality with localStorage
+// Enhanced JavaScript for Hyunsoo Han's Personal Website Calendar
+// This handles calendar functionality with localStorage and enhanced UX
 
 document.addEventListener('DOMContentLoaded', function() {
     // Calendar functionality
@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (calendarContainer) {
         initializeCalendar();
     }
+
+    // Initialize event handling
+    initializeEventHandling();
 
     // Load existing events
     loadEvents();
@@ -43,7 +46,7 @@ function initializeCalendar() {
     // Add empty cells for days before the first day
     for (let i = 0; i < firstDayOfMonth; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'calendar-day';
+        emptyCell.className = 'calendar-day other-month';
         calendarGrid.appendChild(emptyCell);
     }
 
@@ -51,18 +54,25 @@ function initializeCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
         dayCell.className = 'calendar-day';
-        dayCell.setAttribute('data-date', `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        dayCell.setAttribute('data-date', dateStr);
+
+        // Highlight today
+        if (isToday(year, month, day)) {
+            dayCell.classList.add('today');
+        }
+
         dayCell.innerHTML = `<div class="day-number">${day}</div>`;
 
         // Check if this day has events
-        const events = getEventsForDate(`${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+        const events = getEventsForDate(dateStr);
         if (events.length > 0) {
             dayCell.classList.add('has-events');
         }
 
         // Add click event to show events
         dayCell.addEventListener('click', function() {
-            showEventsForDate(this.getAttribute('data-date'));
+            showEventsForDate(dateStr);
         });
 
         calendarGrid.appendChild(dayCell);
@@ -76,14 +86,21 @@ function initializeCalendar() {
     addEventForm();
 }
 
+function isToday(year, month, day) {
+    const today = new Date();
+    return today.getFullYear() === year &&
+           today.getMonth() === month &&
+           today.getDate() === day;
+}
+
 function addEventForm() {
     const form = document.createElement('div');
     form.className = 'add-event-form';
     form.innerHTML = `
         <h3>Add Event</h3>
-        <input type="text" id="event-input" class="event-input" placeholder="Event title">
+        <input type="text" id="event-input" class="event-input" placeholder="Event title" required>
         <textarea id="event-description" class="event-input" placeholder="Event description"></textarea>
-        <button onclick="saveEvent()" class="event-button">Save Event</button>
+        <button type="button" onclick="saveEvent()" class="event-button">Save Event</button>
     `;
     calendarContainer.appendChild(form);
 }
@@ -101,7 +118,8 @@ function saveEvent() {
     const event = {
         title: eventInput.value.trim(),
         description: descriptionInput.value.trim(),
-        date: date
+        date: date,
+        timestamp: new Date().toISOString()
     };
 
     const events = getEventsForDate(date);
@@ -116,12 +134,16 @@ function saveEvent() {
     // Refresh calendar
     refreshCalendar();
 
-    alert('Event saved!');
+    alert('Event saved successfully!');
 }
 
 function getEventsForDate(date) {
     const storedEvents = localStorage.getItem(`events_${date}`);
-    return storedEvents ? JSON.parse(storedEvents) : [];
+    try {
+        return storedEvents ? JSON.parse(storedEvents) : [];
+    } catch (e) {
+        return [];
+    }
 }
 
 function loadEvents() {
@@ -137,16 +159,20 @@ function showEventsForDate(date) {
         return;
     }
 
-    let eventList = 'Events for this date:\n\n';
+    let eventList = `Events for ${date}:\n\n`;
     events.forEach(event => {
-        eventList += `${event.title}\n${event.description}\n\n`;
+        eventList += `• ${event.title}\n`;
+        if (event.description) {
+            eventList += `  ${event.description}\n`;
+        }
+        eventList += '\n';
     });
 
     alert(eventList);
 }
 
 function refreshCalendar() {
-    // Simple approach - reload the page to refresh calendar
+    // Reload the page to refresh calendar
     location.reload();
 }
 
@@ -155,4 +181,26 @@ function getCurrentSelectedDate() {
     // For now, we'll use today's date
     const today = new Date();
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+function initializeEventHandling() {
+    // Handle form submission via enter key
+    const eventInput = document.getElementById('event-input');
+    const descriptionInput = document.getElementById('event-description');
+
+    if (eventInput) {
+        eventInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveEvent();
+            }
+        });
+    }
+
+    if (descriptionInput) {
+        descriptionInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                saveEvent();
+            }
+        });
+    }
 }
