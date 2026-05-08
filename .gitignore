@@ -24,3 +24,6 @@
 
 # Local files
 .env
+
+# GitHub Actions
+.github/workflows/*
