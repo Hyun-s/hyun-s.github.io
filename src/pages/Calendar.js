@@ -5,6 +5,7 @@ const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [showEventForm, setShowEventForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [eventForm, setEventForm] = useState({
     title: '',
     time: '',
@@ -127,12 +128,49 @@ const Calendar = () => {
 
   const closeEventForm = () => {
     setShowEventForm(false);
+    setEditingEvent(null);
     setEventForm({
       title: '',
       time: '',
       description: '',
       date: ''
     });
+  };
+
+  const handleEditEvent = (event) => {
+    setEditingEvent(event);
+    setEventForm({
+      title: event.title,
+      time: event.time || '',
+      description: event.description || '',
+      date: event.date
+    });
+    setShowEventForm(true);
+  };
+
+  const handleUpdateEvent = (e) => {
+    e.preventDefault();
+    if (editingEvent && eventForm.title && eventForm.date) {
+      const updatedEvents = events.map(event =>
+        event.id === editingEvent.id
+          ? { ...event, ...eventForm }
+          : event
+      );
+      setEvents(updatedEvents);
+      setEventForm({
+        title: '',
+        time: '',
+        description: '',
+        date: ''
+      });
+      setEditingEvent(null);
+      setShowEventForm(false);
+    }
+  };
+
+  const handleDeleteEvent = (eventId) => {
+    const updatedEvents = events.filter(event => event.id !== eventId);
+    setEvents(updatedEvents);
   };
 
   return (
@@ -163,8 +201,8 @@ const Calendar = () => {
       {showEventForm && (
         <div className="modal-overlay" onClick={closeEventForm}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Add New Event</h3>
-            <form onSubmit={handleEventSubmit}>
+            <h3>{editingEvent ? 'Edit Event' : 'Add New Event'}</h3>
+            <form onSubmit={editingEvent ? handleUpdateEvent : handleEventSubmit}>
               <div className="form-group">
                 <label htmlFor="title">Event Title:</label>
                 <input
@@ -212,7 +250,17 @@ const Calendar = () => {
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="btn-primary">Add Event</button>
+                {editingEvent && (
+                  <button type="button" className="btn-danger" onClick={() => {
+                    handleDeleteEvent(editingEvent.id);
+                    closeEventForm();
+                  }}>
+                    Delete Event
+                  </button>
+                )}
+                <button type="submit" className="btn-primary">
+                  {editingEvent ? 'Update Event' : 'Add Event'}
+                </button>
                 <button type="button" className="btn-secondary" onClick={closeEventForm}>Cancel</button>
               </div>
             </form>
@@ -238,6 +286,14 @@ const Calendar = () => {
                     <h4>{event.title}</h4>
                     <p>{event.time || 'All day'} • {formatDate(new Date(event.date))}</p>
                     {event.description && <p className="event-description">{event.description}</p>}
+                  </div>
+                  <div className="event-actions">
+                    <button
+                      className="btn-small btn-edit"
+                      onClick={() => handleEditEvent(event)}
+                    >
+                      Edit
+                    </button>
                   </div>
                 </div>
               ))
