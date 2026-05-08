@@ -5,7 +5,6 @@ const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [showEventForm, setShowEventForm] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
   const [eventForm, setEventForm] = useState({
     title: '',
     time: '',
