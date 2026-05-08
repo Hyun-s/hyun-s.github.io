@@ -49,7 +49,6 @@ const Calendar = () => {
 
   const handleDateClick = (day) => {
     const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    setSelectedDate(clickedDate);
     setEventForm({
       ...eventForm,
       date: clickedDate.toISOString().split('T')[0]
