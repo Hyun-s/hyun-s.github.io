@@ -9,8 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -25,9 +23,8 @@ jobs:
       run: npm run build
 
     - name: Deploy
-      uses: peaceiris/actions-gh-pages@v4
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./build
-        force_orphan: true
-        allow_empty_commit: true
+        folder: build
+        clean: true
+        single-commit: true
