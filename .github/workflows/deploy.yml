@@ -30,4 +30,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build
         force_orphan: true
-        cname: hyun-s.github.io
+        allow_empty_commit: true
