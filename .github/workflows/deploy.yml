@@ -1,4 +1,4 @@
-name: Deploy Hugo Site to GitHub Pages
+name: Deploy Hugo Site
 
 on:
   push:
@@ -23,11 +23,11 @@ jobs:
     - name: Build
       run: hugo --minify
 
-    - name: Deploy to GitHub Pages
+    - name: Deploy
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./public
-        publish_branch: main
+        publish_branch: gh-pages
         force_orphan: true
         allow_empty_commit: true
