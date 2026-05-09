@@ -1,6 +1,12 @@
 {{ define "main" }}
 <div class="home">
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
+    <div class="hero">
+        <h1>{{ .Title }}</h1>
+        <p>{{ .Params.description }}</p>
+    </div>
+
+    <div class="content-section">
+        {{ .Content }}
+    </div>
 </div>
 {{ end }}

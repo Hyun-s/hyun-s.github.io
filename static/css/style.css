@@ -12,6 +12,7 @@
   --border-color: #e2e8f0;
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --transition: all 0.3s ease;
+  --radius: 12px;
 }
 
 * {
@@ -75,6 +76,7 @@ header {
   border-radius: 0.5rem;
   transition: var(--transition);
   font-weight: 500;
+  position: relative;
 }
 
 .nav a:hover {
@@ -82,28 +84,77 @@ header {
   color: var(--primary-color);
 }
 
+/* Active link indicator */
+.nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 3px;
+}
+
 /* Hero Section */
 .hero {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   color: white;
   text-align: center;
-  padding: 4rem 0;
+  padding: 5rem 0;
   margin: 2rem 0;
-  border-radius: 1rem;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(30deg);
 }
 
 .hero h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   font-weight: 800;
+  position: relative;
+  z-index: 2;
 }
 
 .hero p {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 2rem;
   opacity: 0.9;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-btn {
+  display: inline-block;
+  background-color: white;
+  color: var(--primary-color);
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 2;
+}
+
+.hero-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 /* Main Content */
@@ -111,11 +162,17 @@ main {
   padding: 2rem 0;
 }
 
+.content-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 .section {
   background: white;
   padding: 2.5rem;
   margin: 2rem 0;
-  border-radius: 1rem;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
@@ -131,6 +188,18 @@ main {
   margin-bottom: 2rem;
   font-size: 1.8rem;
   font-weight: 700;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: var(--accent-color);
+  border-radius: 3px;
 }
 
 /* Cards and Content */
@@ -142,22 +211,36 @@ main {
 }
 
 .card {
-  background: var(--light-bg);
+  background: white;
   padding: 1.5rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   border-left: 4px solid var(--primary-color);
   transition: var(--transition);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .card h3 {
   color: var(--primary-dark);
   margin-bottom: 1rem;
   font-size: 1.3rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.card h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--primary-color);
 }
 
 /* Interest Tags */
@@ -172,14 +255,16 @@ main {
   background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: white;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 50px;
   font-size: 0.9rem;
   font-weight: 500;
   transition: var(--transition);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .interest-tag:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Calendar Styles */
