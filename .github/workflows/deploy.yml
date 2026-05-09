@@ -29,3 +29,5 @@ jobs:
         publish_dir: ./public
         publish_branch: gh-pages
         force_orphan: true
+        allow_empty_commit: true
+        enable_jekyll: false
