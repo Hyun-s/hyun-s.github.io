@@ -14,18 +14,6 @@
     </main>
 
     {{ partial "footer.html" . }}
-    <script src="/js/main.js"></script>
-    <script>
-        // Ensure calendar initialization runs even if DOMContentLoaded was missed
-        if (document.querySelector('.calendar-container')) {
-            if (typeof initCalendar === 'function') {
-                initCalendar();
-            } else {
-                document.addEventListener('DOMContentLoaded', function() {
-                    initCalendar();
-                });
-            }
-        }
-    </script>
+    <script src="/js/main.js?v={{ now.Unix }}"></script>
 </body>
 </html>
