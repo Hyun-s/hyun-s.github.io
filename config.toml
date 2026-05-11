@@ -10,3 +10,7 @@ title = "Hyunsoo Han - Personal Website"
   home = ["html", "rss"]
   section = ["html"]
   page = ["html"]
+
+[build]
+  buildStats = false
+  ignoreCache = true

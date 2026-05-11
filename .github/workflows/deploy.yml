@@ -28,11 +28,11 @@ jobs:
     - name: Setup Hugo
       uses: peaceiris/actions-hugo@v3
       with:
-        hugo-version: 'latest'
+        hugo-version: '0.124.1'
         extended: true
 
     - name: Build
-      run: hugo --minify
+      run: hugo --minify --buildStats=false
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
