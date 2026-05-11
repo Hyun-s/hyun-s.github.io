@@ -1,0 +1,31 @@
+{
+  "active": true,
+  "current_phase": "deep-interview",
+  "interview_id": "di-20260512-003",
+  "type": "brownfield",
+  "initial_idea": "Deploy updated calendar features to GitHub Pages via git push",
+  "rounds": [],
+  "current_ambiguity": 1,
+  "threshold": 0.2,
+  "topology": {
+    "status": "confirmed",
+    "confirmed_at": "2026-05-12T00:00:00Z",
+    "components": [
+      {
+        "id": "deploy-calendar-features",
+        "name": "Deploy Calendar Features",
+        "description": "Deploy updated calendar to GitHub Pages via git push",
+        "status": "active",
+        "clarity_scores": {}
+      }
+    ],
+    "deferrals": [],
+    "last_targeted_component_id": null
+  },
+  "_meta": {
+    "mode": "deep-interview",
+    "sessionId": null,
+    "updatedAt": "2026-05-11T18:35:38.712Z",
+    "updatedBy": "state_write_tool"
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1778517023637,
+  "projectRoot": "/home/hyuns/hyun-s.github.io",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "static"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "calendar": {
+      "path": "calendar",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1778517023635,
+      "keyFiles": [
+        "index.html",
+        "index.xml"
+      ]
+    },
+    "categories": {
+      "path": "categories",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778517023635,
+      "keyFiles": [
+        "index.xml"
+      ]
+    },
+    "content": {
+      "path": "content",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778517023635,
+      "keyFiles": [
+        "_index.md"
+      ]
+    },
+    "css": {
+      "path": "css",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778517023636,
+      "keyFiles": [
+        "style.css"
+      ]
+    },
+    "cv": {
+      "path": "cv",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1778517023636,
+      "keyFiles": [
+        "index.html",
+        "index.xml"
+      ]
+    },
+    "js": {
+      "path": "js",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778517023637,
+      "keyFiles": [
+        "main.js"
+      ]
+    },
+    "layouts": {
+      "path": "layouts",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778517023637,
+      "keyFiles": [
+        "index.html"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 3,
+      "lastAccessed": 1778517023637,
+      "keyFiles": [
+        "index.html",
+        "index.xml",
+        "sitemap.xml"
+      ]
+    },
+    "static": {
+      "path": "static",
+      "purpose": "Static files",
+      "fileCount": 0,
+      "lastAccessed": 1778517023637,
+      "keyFiles": []
+    },
+    "tags": {
+      "path": "tags",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1778517023637,
+      "keyFiles": [
+        "index.xml"
+      ]
+    },
+    "tmp": {
+      "path": "tmp",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1778517023637,
+      "keyFiles": []
+    },
+    "tmp/build": {
+      "path": "tmp/build",
+      "purpose": "Build output",
+      "fileCount": 3,
+      "lastAccessed": 1778517023637,
+      "keyFiles": [
+        "index.html",
+        "index.xml",
+        "sitemap.xml"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "js/main.js",
+      "accessCount": 16,
+      "lastAccessed": 1778524233897,
+      "type": "file"
+    },
+    {
+      "path": "layouts/calendar/list.html",
+      "accessCount": 5,
+      "lastAccessed": 1778524261381,
+      "type": "file"
+    },
+    {
+      "path": "static/js/main.js",
+      "accessCount": 5,
+      "lastAccessed": 1778525006150,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 4,
+      "lastAccessed": 1778518072700,
+      "type": "directory"
+    },
+    {
+      "path": "content/calendar/_index.md",
+      "accessCount": 4,
+      "lastAccessed": 1778524220502,
+      "type": "file"
+    },
+    {
+      "path": "css/style.css",
+      "accessCount": 4,
+      "lastAccessed": 1778524302550,
+      "type": "file"
+    },
+    {
+      "path": "static/css/style.css",
+      "accessCount": 3,
+      "lastAccessed": 1778522278311,
+      "type": "file"
+    },
+    {
+      "path": "content",
+      "accessCount": 2,
+      "lastAccessed": 1778518072708,
+      "type": "directory"
+    },
+    {
+      "path": "content/calendar/2026-05-08-calendar-launch.md",
+      "accessCount": 2,
+      "lastAccessed": 1778524220513,
+      "type": "file"
+    },
+    {
+      "path": "config.toml",
+      "accessCount": 2,
+      "lastAccessed": 1778524220521,
+      "type": "file"
+    },
+    {
+      "path": "layouts/index.html",
+      "accessCount": 2,
+      "lastAccessed": 1778524261486,
+      "type": "file"
+    },
+    {
+      "path": "index.html",
+      "accessCount": 2,
+      "lastAccessed": 1778524274407,
+      "type": "file"
+    },
+    {
+      "path": "content/_index.md",
+      "accessCount": 2,
+      "lastAccessed": 1778524288411,
+      "type": "file"
+    },
+    {
+      "path": "calendar/index.html",
+      "accessCount": 1,
+      "lastAccessed": 1778517316442,
+      "type": "file"
+    },
+    {
+      "path": "layouts/_default/baseof.html",
+      "accessCount": 1,
+      "lastAccessed": 1778517331245,
+      "type": "file"
+    },
+    {
+      "path": "layouts/partials/nav.html",
+      "accessCount": 1,
+      "lastAccessed": 1778517360591,
+      "type": "file"
+    },
+    {
+      "path": "layouts/partials/footer.html",
+      "accessCount": 1,
+      "lastAccessed": 1778517360644,
+      "type": "file"
+    },
+    {
+      "path": "layouts/calendar/single.html",
+      "accessCount": 1,
+      "lastAccessed": 1778519119273,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1778524220432,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
