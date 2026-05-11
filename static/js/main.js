@@ -197,3 +197,11 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - initializing calendar');
     initCalendar();
 });
+
+// Aliases for backward compatibility
+const initializeCalendar = initCalendar;
+const addEventForm = addEventForm;
+const saveEvent = saveEvent;
+const getEventsForDate = getEventsForDate;
+const showEventsForDate = showEventsForDate;
+const isToday = isToday;
