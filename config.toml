@@ -5,3 +5,8 @@ title = "Hyunsoo Han - Personal Website"
 [params]
     author = "Hyunsoo Han"
     description = "Personal website for Hyunsoo Han, researcher in AI Diffusion Model Compression"
+
+[outputs]
+  home = ["html", "rss"]
+  section = ["html"]
+  page = ["html"]
