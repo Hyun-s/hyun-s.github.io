@@ -3,22 +3,15 @@
 
 let calendarContainer = null;
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Calendar functionality
+function initCalendar() {
+    console.log('initCalendar called');
     calendarContainer = document.querySelector('.calendar-container');
 
-    if (calendarContainer) {
-        initializeCalendar();
+    if (!calendarContainer) {
+        console.error('calendar-container element not found');
+        return;
     }
 
-    // Initialize event handling
-    initializeEventHandling();
-
-    // Load existing events
-    loadEvents();
-});
-
-function initializeCalendar() {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
@@ -86,6 +79,7 @@ function initializeCalendar() {
 
     // Add event form
     addEventForm();
+    console.log('Calendar initialized successfully');
 }
 
 function isToday(year, month, day) {
@@ -102,24 +96,56 @@ function addEventForm() {
         <h3>Add Event</h3>
         <input type="text" id="event-input" class="event-input" placeholder="Event title" required>
         <textarea id="event-description" class="event-input" placeholder="Event description"></textarea>
-        <button type="button" onclick="saveEvent()" class="event-button">Save Event</button>
+        <button type="button" class="event-button">Save Event</button>
     `;
     calendarContainer.appendChild(form);
+
+    // Re-attach event listeners after form is added
+    setupEventFormListeners();
+}
+
+function setupEventFormListeners() {
+    const eventInput = document.getElementById('event-input');
+    const descriptionInput = document.getElementById('event-description');
+    const saveButton = document.querySelector('.event-button');
+
+    if (saveButton) {
+        saveButton.addEventListener('click', saveEvent);
+    }
+
+    if (eventInput) {
+        eventInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveEvent();
+            }
+        });
+    }
+
+    if (descriptionInput) {
+        descriptionInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                saveEvent();
+            }
+        });
+    }
 }
 
 function saveEvent() {
     const eventInput = document.getElementById('event-input');
     const descriptionInput = document.getElementById('event-description');
-    const date = getCurrentSelectedDate();
 
-    if (!date || !eventInput.value.trim()) {
-        alert('Please select a date and enter an event title');
+    if (!eventInput || !eventInput.value.trim()) {
+        alert('Please enter an event title');
         return;
     }
 
+    // Get date from currently clicked day (stored in dataset)
+    const today = new Date();
+    const date = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
     const event = {
         title: eventInput.value.trim(),
-        description: descriptionInput.value.trim(),
+        description: descriptionInput ? descriptionInput.value.trim() : '',
         date: date,
         timestamp: new Date().toISOString()
     };
@@ -131,12 +157,10 @@ function saveEvent() {
 
     // Clear form
     eventInput.value = '';
-    descriptionInput.value = '';
+    if (descriptionInput) descriptionInput.value = '';
 
     // Refresh calendar
-    refreshCalendar();
-
-    alert('Event saved successfully!');
+    location.reload();
 }
 
 function getEventsForDate(date) {
@@ -146,11 +170,6 @@ function getEventsForDate(date) {
     } catch (e) {
         return [];
     }
-}
-
-function loadEvents() {
-    // This would load events when the page loads
-    // Calendar initialization handles this through the grid creation
 }
 
 function showEventsForDate(date) {
@@ -173,36 +192,8 @@ function showEventsForDate(date) {
     alert(eventList);
 }
 
-function refreshCalendar() {
-    // Reload the page to refresh calendar
-    location.reload();
-}
-
-function getCurrentSelectedDate() {
-    // In a real implementation, this would return the selected date
-    // For now, we'll use today's date
-    const today = new Date();
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-}
-
-function initializeEventHandling() {
-    // Handle form submission via enter key
-    const eventInput = document.getElementById('event-input');
-    const descriptionInput = document.getElementById('event-description');
-
-    if (eventInput) {
-        eventInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                saveEvent();
-            }
-        });
-    }
-
-    if (descriptionInput) {
-        descriptionInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                saveEvent();
-            }
-        });
-    }
-}
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - initializing calendar');
+    initCalendar();
+});
