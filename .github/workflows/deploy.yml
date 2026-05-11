@@ -33,7 +33,7 @@ jobs:
 
     - name: Build
       run: |
-        hugo --minify
+        hugo --minify --disableKinds=rss
         echo "=== Generated files ==="
         find ./public -type f | sort
 
