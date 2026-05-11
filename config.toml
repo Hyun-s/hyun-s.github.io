@@ -15,7 +15,6 @@ title = "Hyunsoo Han - Personal Website"
 [build]
   buildStats = false
   ignoreCache = true
-  disableKinds = ["rss"]
 
 [taxonomies]
   tag = "tags"

@@ -1,9 +1,11 @@
 // Enhanced JavaScript for Hyunsoo Han's Personal Website Calendar
 // This handles calendar functionality with localStorage and enhanced UX
 
+let calendarContainer = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     // Calendar functionality
-    const calendarContainer = document.querySelector('.calendar-container');
+    calendarContainer = document.querySelector('.calendar-container');
 
     if (calendarContainer) {
         initializeCalendar();
