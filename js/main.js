@@ -1,19 +1,25 @@
 // Enhanced JavaScript for Hyunsoo Han's Personal Website Calendar
 // This handles calendar functionality with localStorage and enhanced UX
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Calendar functionality
-    const calendarContainer = document.querySelector('.calendar-container');
+// Global calendar container reference
+let calendarContainer = null;
+
+function initCalendar() {
+    if (!calendarContainer) {
+        calendarContainer = document.querySelector('.calendar-container');
+    }
 
     if (calendarContainer) {
         initializeCalendar();
     }
+}
 
-    // Initialize event handling
-    initializeEventHandling();
-
+document.addEventListener('DOMContentLoaded', function() {
     // Load existing events
     loadEvents();
+
+    // Initialize calendar
+    initCalendar();
 });
 
 function initializeCalendar() {
@@ -83,7 +89,7 @@ function initializeCalendar() {
     calendarContainer.appendChild(calendarGrid);
 
     // Add event form
-    addEventForm();
+    addEventForm(calendarContainer);
 }
 
 function isToday(year, month, day) {
@@ -93,16 +99,25 @@ function isToday(year, month, day) {
            today.getDate() === day;
 }
 
-function addEventForm() {
+function addEventForm(container) {
     const form = document.createElement('div');
     form.className = 'add-event-form';
     form.innerHTML = `
         <h3>Add Event</h3>
         <input type="text" id="event-input" class="event-input" placeholder="Event title" required>
         <textarea id="event-description" class="event-input" placeholder="Event description"></textarea>
-        <button type="button" onclick="saveEvent()" class="event-button">Save Event</button>
+        <button type="button" class="event-button" id="save-event-btn">Save Event</button>
     `;
-    calendarContainer.appendChild(form);
+    container.appendChild(form);
+
+    // Attach event listener after form is added
+    const saveBtn = document.getElementById('save-event-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveEvent);
+    }
+
+    // Initialize input event handlers
+    initInputHandlers();
 }
 
 function saveEvent() {
@@ -172,8 +187,13 @@ function showEventsForDate(date) {
 }
 
 function refreshCalendar() {
-    // Reload the page to refresh calendar
-    location.reload();
+    // Re-render calendar without page reload
+    if (calendarContainer) {
+        // Clear existing calendar
+        calendarContainer.innerHTML = '';
+        // Re-initialize
+        initCalendar();
+    }
 }
 
 function getCurrentSelectedDate() {
@@ -183,7 +203,7 @@ function getCurrentSelectedDate() {
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
-function initializeEventHandling() {
+function initInputHandlers() {
     // Handle form submission via enter key
     const eventInput = document.getElementById('event-input');
     const descriptionInput = document.getElementById('event-description');
