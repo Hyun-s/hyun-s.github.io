@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .Title }} - Hyunsoo Han</title>
-    <link rel="stylesheet" href="/css/style.css">
+    {{ $styleCSS := resources.Get "css/style.css" }}
+    <link rel="stylesheet" href="{{ $styleCSS.Permalink }}">
 </head>
 <body>
     {{ partial "nav.html" . }}
@@ -14,6 +15,7 @@
     </main>
 
     {{ partial "footer.html" . }}
-    <script src="/js/main.js?v={{ now.Unix }}"></script>
+    {{ $mainJS := resources.Get "js/main.js" }}
+    <script src="{{ $mainJS.Permalink }}"></script>
 </body>
 </html>
