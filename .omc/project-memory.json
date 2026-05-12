@@ -9,7 +9,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": null,
+    "buildCommand": "git commit -m \"$(cat <<'EOF'\nchore: add Hugo-built assets and update OMC state\n\n- Add compiled CSS and JS assets from Hugo build\n- Update OMC session and checkpoint state files\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n)\"",
     "testCommand": null,
     "lintCommand": null,
     "devCommand": null,
@@ -146,26 +146,44 @@
   "hotPaths": [
     {
       "path": "",
-      "accessCount": 18,
-      "lastAccessed": 1778526048812,
+      "accessCount": 22,
+      "lastAccessed": 1778583658544,
       "type": "directory"
     },
     {
       "path": "js/main.js",
-      "accessCount": 18,
-      "lastAccessed": 1778551111275,
+      "accessCount": 20,
+      "lastAccessed": 1778570900395,
       "type": "file"
     },
     {
-      "path": "layouts/_default/baseof.html",
-      "accessCount": 8,
-      "lastAccessed": 1778525939190,
+      "path": "assets/js/main.js",
+      "accessCount": 13,
+      "lastAccessed": 1778585320862,
       "type": "file"
     },
     {
       "path": "layouts/calendar/list.html",
+      "accessCount": 11,
+      "lastAccessed": 1778583646737,
+      "type": "file"
+    },
+    {
+      "path": "layouts/_default/baseof.html",
+      "accessCount": 11,
+      "lastAccessed": 1778583696460,
+      "type": "file"
+    },
+    {
+      "path": "assets/css/style.css",
+      "accessCount": 10,
+      "lastAccessed": 1778585791424,
+      "type": "file"
+    },
+    {
+      "path": "content/calendar/_index.md",
       "accessCount": 7,
-      "lastAccessed": 1778525829982,
+      "lastAccessed": 1778583646678,
       "type": "file"
     },
     {
@@ -181,21 +199,27 @@
       "type": "file"
     },
     {
-      "path": "content/calendar/_index.md",
+      "path": "static/css/style.css",
       "accessCount": 5,
-      "lastAccessed": 1778525572227,
+      "lastAccessed": 1778570900447,
       "type": "file"
     },
     {
-      "path": "static/css/style.css",
-      "accessCount": 3,
-      "lastAccessed": 1778522278311,
+      "path": "layouts/calendar/single.html",
+      "accessCount": 5,
+      "lastAccessed": 1778583646721,
+      "type": "file"
+    },
+    {
+      "path": "content/calendar/2026-05-08-calendar-launch.md",
+      "accessCount": 5,
+      "lastAccessed": 1778583646730,
       "type": "file"
     },
     {
       "path": "config.toml",
-      "accessCount": 3,
-      "lastAccessed": 1778525506532,
+      "accessCount": 4,
+      "lastAccessed": 1778570545888,
       "type": "file"
     },
     {
@@ -217,40 +241,28 @@
       "type": "file"
     },
     {
-      "path": "content",
-      "accessCount": 2,
-      "lastAccessed": 1778518072708,
-      "type": "directory"
-    },
-    {
-      "path": "content/calendar/2026-05-08-calendar-launch.md",
-      "accessCount": 2,
-      "lastAccessed": 1778524220513,
-      "type": "file"
-    },
-    {
       "path": "calendar/index.html",
-      "accessCount": 2,
-      "lastAccessed": 1778525522270,
-      "type": "file"
-    },
-    {
-      "path": "layouts/calendar/single.html",
-      "accessCount": 2,
-      "lastAccessed": 1778525522289,
-      "type": "file"
-    },
-    {
-      "path": "layouts/partials/footer.html",
-      "accessCount": 2,
-      "lastAccessed": 1778525539207,
+      "accessCount": 3,
+      "lastAccessed": 1778570571027,
       "type": "file"
     },
     {
       "path": "layouts/partials/nav.html",
-      "accessCount": 2,
-      "lastAccessed": 1778525539218,
+      "accessCount": 3,
+      "lastAccessed": 1778570584219,
       "type": "file"
+    },
+    {
+      "path": "layouts/partials/footer.html",
+      "accessCount": 3,
+      "lastAccessed": 1778570584223,
+      "type": "file"
+    },
+    {
+      "path": "content",
+      "accessCount": 2,
+      "lastAccessed": 1778518072708,
+      "type": "directory"
     },
     {
       "path": "README.md",
@@ -262,6 +274,12 @@
       "path": "public/js/main.js",
       "accessCount": 1,
       "lastAccessed": 1778525572242,
+      "type": "file"
+    },
+    {
+      "path": "calendar/index.xml",
+      "accessCount": 1,
+      "lastAccessed": 1778570571090,
       "type": "file"
     }
   ],
