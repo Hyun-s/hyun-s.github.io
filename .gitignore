@@ -38,3 +38,7 @@
 
 # GitHub Actions
 .github/workflows/*
+
+# OMC state files (temporary interview data)
+.omc/state/
+.omc/sessions/
