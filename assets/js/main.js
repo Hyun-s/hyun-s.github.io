@@ -240,6 +240,10 @@ function showEventsForDate(date) {
 }
 
 function renderEventListAndForm(date, events, eventListContainer, addFormContainer) {
+    // Clear existing content
+    eventListContainer.innerHTML = '';
+    addFormContainer.innerHTML = '';
+
     // Render event list
     if (events.length === 0) {
         const noEventsMsg = document.createElement('p');
