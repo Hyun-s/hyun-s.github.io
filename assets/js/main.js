@@ -473,8 +473,8 @@ function editEvent(date, index) {
     const event = events[index];
 
     // Close current modal
-    const modal = document.querySelector('.calendar-modal');
-    if (modal) modal.remove();
+    const existingModal = document.querySelector('.calendar-modal');
+    if (existingModal) existingModal.remove();
 
     // Create edit form
     const editContainer = document.createElement('div');
@@ -492,7 +492,7 @@ function editEvent(date, index) {
     `;
 
     // Show modal with edit form
-    const modal = showInlineModal('Edit Event', '', editContainer);
+    const editModal = showInlineModal('Edit Event', '', editContainer);
 
     // Add event listener for update button
     setTimeout(() => {
@@ -524,7 +524,7 @@ function editEvent(date, index) {
 
             localStorage.setItem(`events_${date}`, JSON.stringify(events));
             refreshCalendar();
-            modal.remove();
+            editModal.remove();
         });
     }, 0);
 }
