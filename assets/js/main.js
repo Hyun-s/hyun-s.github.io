@@ -26,10 +26,42 @@ document.addEventListener('DOMContentLoaded', function() {
 let currentYear = null;
 let currentMonth = null;
 
+// Load persisted month state if available
+function loadCalendarState() {
+    try {
+        const savedState = localStorage.getItem('calendar_view_state');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            if (state.year && state.month !== null) {
+                currentYear = state.year;
+                currentMonth = state.month;
+                return true;
+            }
+        }
+    } catch (e) {
+        // Ignore parse errors
+    }
+    return false;
+}
+
+function saveCalendarState() {
+    try {
+        localStorage.setItem('calendar_view_state', JSON.stringify({
+            year: currentYear,
+            month: currentMonth
+        }));
+    } catch (e) {
+        // Ignore save errors
+    }
+}
+
 function initializeCalendar() {
-    const today = new Date();
-    currentYear = today.getFullYear();
-    currentMonth = today.getMonth();
+    // Load persisted state or use current date
+    if (!loadCalendarState()) {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+    }
 
     // Create calendar header container
     const calendarHeader = document.createElement('div');
@@ -117,9 +149,6 @@ function initializeCalendar() {
     calendarContainer.appendChild(calendarHeader);
     calendarContainer.appendChild(calendarGrid);
 
-    // Add event form
-    addEventForm(calendarContainer);
-
     // Add navigation event listeners
     prevBtn.addEventListener('click', function() {
         changeMonth(-1);
@@ -140,6 +169,7 @@ function changeMonth(direction) {
         currentYear++;
     }
 
+    saveCalendarState();
     refreshCalendar();
 }
 
@@ -163,138 +193,6 @@ function isToday(year, month, day) {
            today.getDate() === day;
 }
 
-function addEventForm(container) {
-    const form = document.createElement('div');
-    form.className = 'add-event-form';
-    form.innerHTML = `
-        <h3>Add Event</h3>
-        <input type="text" id="event-input" class="event-input" placeholder="Event title" required>
-        <textarea id="event-description" class="event-input" placeholder="Event description"></textarea>
-        <div class="event-time-inputs">
-            <input type="time" id="event-time" class="event-input" placeholder="Start time">
-            <input type="time" id="event-end-time" class="event-input" placeholder="End time">
-        </div>
-        <button type="button" class="event-button" id="save-event-btn">Save Event</button>
-    `;
-    container.appendChild(form);
-
-    // Attach event listener after form is added
-    const saveBtn = document.getElementById('save-event-btn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveEvent);
-    }
-
-    // Initialize input event handlers
-    initInputHandlers();
-}
-
-function saveEvent() {
-    const eventInput = document.getElementById('event-input');
-    const descriptionInput = document.getElementById('event-description');
-    const timeInput = document.getElementById('event-time');
-    const endTimeInput = document.getElementById('event-end-time');
-
-    // Check if in edit mode
-    const saveBtn = document.getElementById('save-event-btn');
-    const isEdit = saveBtn && saveBtn.dataset.editDate;
-
-    if (isEdit) {
-        editEventInPlace(saveBtn.dataset.editDate, saveBtn.dataset.editIndex);
-        return;
-    }
-
-    const dateInput = document.getElementById('event-date');
-    const date = dateInput ? dateInput.value : getCurrentSelectedDate();
-
-    if (!date || !eventInput.value.trim()) {
-        alert('Please select a date and enter an event title');
-        return;
-    }
-
-    // Validate time
-    const startTime = timeInput ? timeInput.value : '';
-    const endTime = endTimeInput ? endTimeInput.value : '';
-
-    if (startTime && endTime && startTime > endTime) {
-        alert('End time must be after start time');
-        return;
-    }
-
-    const event = {
-        title: eventInput.value.trim(),
-        description: descriptionInput.value.trim(),
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        timestamp: new Date().toISOString()
-    };
-
-    const events = getEventsForDate(date);
-    events.push(event);
-
-    localStorage.setItem(`events_${date}`, JSON.stringify(events));
-
-    // Clear form
-    eventInput.value = '';
-    descriptionInput.value = '';
-    if (timeInput) timeInput.value = '';
-    if (endTimeInput) endTimeInput.value = '';
-
-    // Refresh calendar
-    refreshCalendar();
-
-    alert('Event saved successfully!');
-}
-
-function editEventInPlace(date, index) {
-    const eventInput = document.getElementById('event-input');
-    const descriptionInput = document.getElementById('event-description');
-    const timeInput = document.getElementById('event-time');
-    const endTimeInput = document.getElementById('event-end-time');
-
-    if (!date || index === undefined) return;
-
-    const events = getEventsForDate(date);
-    if (!events[index]) return;
-
-    // Validate time
-    const startTime = timeInput ? timeInput.value : '';
-    const endTime = endTimeInput ? endTimeInput.value : '';
-
-    if (startTime && endTime && startTime > endTime) {
-        alert('End time must be after start time');
-        return;
-    }
-
-    events[index] = {
-        title: eventInput.value.trim(),
-        description: descriptionInput.value.trim(),
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        timestamp: events[index].timestamp
-    };
-
-    localStorage.setItem(`events_${date}`, JSON.stringify(events));
-
-    // Clear form and reset button
-    eventInput.value = '';
-    descriptionInput.value = '';
-    if (timeInput) timeInput.value = '';
-    if (endTimeInput) endTimeInput.value = '';
-
-    const saveBtn = document.getElementById('save-event-btn');
-    if (saveBtn) {
-        delete saveBtn.dataset.editDate;
-        delete saveBtn.dataset.editIndex;
-        saveBtn.textContent = 'Save Event';
-    }
-
-    // Refresh calendar
-    refreshCalendar();
-
-    alert('Event updated successfully!');
-}
 
 function getEventsForDate(date) {
     const storedEvents = localStorage.getItem(`events_${date}`);
@@ -312,45 +210,175 @@ function loadEvents() {
 
 function showEventsForDate(date) {
     const events = getEventsForDate(date);
+    const formattedDate = formatDateDisplay(date);
 
+    // Create the combined dialog content
+    const dialogContent = document.createElement('div');
+    dialogContent.className = 'date-dialog-content';
+
+    // Date header
+    const dateHeader = document.createElement('h3');
+    dateHeader.className = 'date-dialog-header';
+    dateHeader.textContent = formattedDate;
+    dialogContent.appendChild(dateHeader);
+
+    // Event list container
+    const eventListContainer = document.createElement('div');
+    eventListContainer.className = 'date-dialog-event-list';
+    dialogContent.appendChild(eventListContainer);
+
+    // Add event form container
+    const addFormContainer = document.createElement('div');
+    addFormContainer.className = 'date-dialog-add-form';
+    dialogContent.appendChild(addFormContainer);
+
+    // Show modal first
+    const modal = showInlineModal('', '', dialogContent);
+
+    // Render events and form
+    renderEventListAndForm(date, events, eventListContainer, addFormContainer);
+}
+
+function renderEventListAndForm(date, events, eventListContainer, addFormContainer) {
+    // Render event list
     if (events.length === 0) {
-        showInlineModal('No Events', `No events for ${date}`, []);
+        const noEventsMsg = document.createElement('p');
+        noEventsMsg.className = 'no-events-message';
+        noEventsMsg.textContent = 'No events for this date';
+        eventListContainer.appendChild(noEventsMsg);
+    } else {
+        events.forEach((event, index) => {
+            const eventItem = createEventItem(date, event, index);
+            eventListContainer.appendChild(eventItem);
+        });
+    }
+
+    // Render add form
+    const form = createAddEventForm(date);
+    addFormContainer.appendChild(form);
+}
+
+function createEventItem(date, event, index) {
+    const eventItem = document.createElement('div');
+    eventItem.className = 'event-item';
+    eventItem.dataset.index = index;
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'event-title';
+    titleDiv.textContent = event.title;
+    titleDiv.style.cursor = 'pointer';
+    titleDiv.addEventListener('click', () => toggleEventDetails(eventItem, date, index));
+    eventItem.appendChild(titleDiv);
+
+    // Details container (hidden by default)
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'event-details';
+    detailsDiv.style.display = 'none';
+    eventItem.appendChild(detailsDiv);
+
+    eventListContainer.appendChild(eventItem);
+
+    return eventItem;
+}
+
+function toggleEventDetails(eventItem, date, index) {
+    const details = eventItem.querySelector('.event-details');
+    const isExpanded = details.style.display !== 'none';
+
+    // Close all other expanded items
+    document.querySelectorAll('.event-details').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    if (!isExpanded) {
+        // Show details for this event
+        const event = getEventsForDate(date)[index];
+        details.innerHTML = `
+            <div class="event-description">${escapeHtml(event.description || '')}</div>
+            <div class="event-time">${formatTime(event.startTime || '')} ${event.endTime ? '- ' + formatTime(event.endTime) : ''}</div>
+            <div class="event-actions">
+                <button class="edit-btn" data-date="${date}" data-index="${index}">Edit</button>
+                <button class="delete-btn" data-date="${date}" data-index="${index}">Delete</button>
+            </div>
+        `;
+        details.style.display = 'block';
+
+        // Add event listeners
+        details.querySelector('.edit-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            editEvent(date, index);
+        });
+        details.querySelector('.delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteEvent(date, index);
+        });
+    }
+}
+
+function createAddEventForm(date) {
+    const form = document.createElement('form');
+    form.className = 'add-event-form-inline';
+    form.dataset.eventDate = date;
+
+    form.innerHTML = `
+        <div class="form-divider">Add New Event</div>
+        <input type="text" name="title" class="event-input" placeholder="Event title" required>
+        <textarea name="description" class="event-input" placeholder="Description (optional)" rows="2"></textarea>
+        <div class="event-time-inputs">
+            <input type="time" name="startTime" class="event-input" placeholder="Start time">
+            <input type="time" name="endTime" class="event-input" placeholder="End time">
+        </div>
+        <button type="submit" class="event-button add-event-btn">Add Event</button>
+    `;
+
+    form.addEventListener('submit', (e) => handleFormSubmit(e, date));
+
+    return form;
+}
+
+function handleFormSubmit(e, date) {
+    e.preventDefault();
+
+    const form = e.target;
+    const title = form.querySelector('[name="title"]').value.trim();
+    const description = form.querySelector('[name="description"]').value.trim();
+    const startTime = form.querySelector('[name="startTime"]').value;
+    const endTime = form.querySelector('[name="endTime"]').value;
+
+    // Validate title
+    if (!title) {
+        alert('Please enter an event title');
         return;
     }
 
-    const eventList = document.createElement('div');
-    eventList.className = 'event-list';
+    // Validate time
+    if (startTime && endTime && startTime > endTime) {
+        alert('End time must be after start time');
+        return;
+    }
 
-    events.forEach((event, index) => {
-        const eventItem = document.createElement('div');
-        eventItem.className = 'event-item';
-        eventItem.innerHTML = `
-            <div class="event-title">${escapeHtml(event.title)}</div>
-            ${event.description ? `<div class="event-description">${escapeHtml(event.description)}</div>` : ''}
-            <div class="event-time">${formatTime(event.startTime)} ${event.endTime ? '- ' + formatTime(event.endTime) : ''}</div>
-            <div class="event-actions">
-                <button class="edit-btn" data-index="${index}">Edit</button>
-                <button class="delete-btn" data-index="${index}">Delete</button>
-            </div>
-        `;
-        eventList.appendChild(eventItem);
-    });
+    const event = {
+        title: title,
+        description: description,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        timestamp: new Date().toISOString()
+    };
 
-    showInlineModal(`Events for ${date}`, '', eventList);
+    const events = getEventsForDate(date);
+    events.push(event);
+    localStorage.setItem(`events_${date}`, JSON.stringify(events));
 
-    // Add event listeners for edit/delete
-    setTimeout(() => {
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                editEvent(date, parseInt(this.dataset.index));
-            });
-        });
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                deleteEvent(date, parseInt(this.dataset.index));
-            });
-        });
-    }, 0);
+    // Re-render the dialog
+    const modal = document.querySelector('.calendar-modal');
+    if (modal) {
+        modal.remove();
+    }
+    showEventsForDate(date);
+
+    // Refresh calendar to show has-events indicator
+    refreshCalendar();
 }
 
 function showInlineModal(title, message, contentElement) {
@@ -399,10 +427,22 @@ function showInlineModal(title, message, contentElement) {
 
     // Close on Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal) {
-            modal.remove();
+        if (e.key === 'Escape') {
+            const currentModal = document.querySelector('.calendar-modal');
+            if (currentModal) {
+                currentModal.remove();
+            }
         }
     });
+
+    return modal;
+}
+
+function formatDateDisplay(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('ko-KR', options);
 }
 
 function escapeHtml(text) {
@@ -432,27 +472,61 @@ function editEvent(date, index) {
 
     const event = events[index];
 
-    const titleInput = document.getElementById('event-input');
-    const descInput = document.getElementById('event-description');
-    const timeInput = document.getElementById('event-time');
-    const endTimeInput = document.getElementById('event-end-time');
-
-    if (titleInput) titleInput.value = event.title || '';
-    if (descInput) descInput.value = event.description || '';
-    if (timeInput) timeInput.value = event.startTime || '';
-    if (endTimeInput) endTimeInput.value = event.endTime || '';
-
-    // Update the save button to indicate edit mode
-    const saveBtn = document.getElementById('save-event-btn');
-    if (saveBtn) {
-        saveBtn.dataset.editDate = date;
-        saveBtn.dataset.editIndex = index;
-        saveBtn.textContent = 'Update Event';
-    }
-
-    // Close modal
+    // Close current modal
     const modal = document.querySelector('.calendar-modal');
     if (modal) modal.remove();
+
+    // Create edit form
+    const editContainer = document.createElement('div');
+    editContainer.className = 'edit-event-form';
+
+    editContainer.innerHTML = `
+        <div class="form-divider">Edit Event</div>
+        <input type="text" id="edit-title" class="event-input" value="${escapeHtml(event.title)}" required>
+        <textarea id="edit-description" class="event-input" rows="2">${escapeHtml(event.description || '')}</textarea>
+        <div class="event-time-inputs">
+            <input type="time" id="edit-start-time" class="event-input" value="${event.startTime || ''}">
+            <input type="time" id="edit-end-time" class="event-input" value="${event.endTime || ''}">
+        </div>
+        <button type="button" class="event-button update-event-btn">Update Event</button>
+    `;
+
+    // Show modal with edit form
+    const modal = showInlineModal('Edit Event', '', editContainer);
+
+    // Add event listener for update button
+    setTimeout(() => {
+        const updateBtn = editContainer.querySelector('.update-event-btn');
+        updateBtn.addEventListener('click', () => {
+            const newTitle = document.getElementById('edit-title').value.trim();
+            const newDescription = document.getElementById('edit-description').value.trim();
+            const newStartTime = document.getElementById('edit-start-time').value;
+            const newEndTime = document.getElementById('edit-end-time').value;
+
+            if (!newTitle) {
+                alert('Please enter an event title');
+                return;
+            }
+
+            if (newStartTime && newEndTime && newStartTime > newEndTime) {
+                alert('End time must be after start time');
+                return;
+            }
+
+            events[index] = {
+                title: newTitle,
+                description: newDescription,
+                date: date,
+                startTime: newStartTime,
+                endTime: newEndTime,
+                timestamp: event.timestamp
+            };
+
+            localStorage.setItem(`events_${date}`, JSON.stringify(events));
+            refreshCalendar();
+            modal.remove();
+        });
+    }, 0);
 }
 
 function deleteEvent(date, index) {
@@ -470,31 +544,3 @@ function deleteEvent(date, index) {
     }
 }
 
-function getCurrentSelectedDate() {
-    // In a real implementation, this would return the selected date
-    // For now, we'll use today's date
-    const today = new Date();
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-}
-
-function initInputHandlers() {
-    // Handle form submission via enter key
-    const eventInput = document.getElementById('event-input');
-    const descriptionInput = document.getElementById('event-description');
-
-    if (eventInput) {
-        eventInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                saveEvent();
-            }
-        });
-    }
-
-    if (descriptionInput) {
-        descriptionInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                saveEvent();
-            }
-        });
-    }
-}
