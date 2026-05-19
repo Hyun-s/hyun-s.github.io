@@ -5,9 +5,8 @@
 let calendarContainer = null;
 
 function initCalendar() {
-    if (!calendarContainer) {
-        calendarContainer = document.querySelector('.calendar-container');
-    }
+    // Always re-query for the container in case it wasn't available before
+    calendarContainer = document.querySelector('.calendar-container');
 
     if (calendarContainer) {
         initializeCalendar();
