@@ -1,15 +1,15 @@
 import os
 import json
 import logging
-import google.generativeai as genai
+from google import genai
 from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 class LLMProcessor:
     def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.client = genai.Client(api_key=api_key)
+        self.model_id = "gemini-1.5-flash"
 
     def summarize_job(self, job_title: str, company: str, description: str) -> Optional[Dict]:
         prompt = f"""
@@ -28,9 +28,13 @@ class LLMProcessor:
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            # Find JSON block if present
+            response = self.client.models.generate_content(
+                model=self.model_id,
+                contents=prompt
+            )
+            
             text = response.text
+            # Clean up JSON if necessary
             if "```json" in text:
                 text = text.split("```json")[1].split("```")[0].strip()
             elif "```" in text:
