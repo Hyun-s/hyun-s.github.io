@@ -9,6 +9,20 @@
 # production
 /build
 /public
+/resources
+
+# Hugo Generated Files (at root)
+index.html
+index.xml
+sitemap.xml
+/js/
+/css/
+/calendar/
+/cv/
+/job-report/
+/categories/
+/tags/
+/tmp/
 
 # Logs
 *.log
@@ -18,6 +32,8 @@ tmux-*.log
 *.zip
 *.tmp
 .hugo_build.lock
+bash
+gem.sh
 
 # misc
 .DS_Store
@@ -26,27 +42,3 @@ tmux-*.log
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Editor
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Hugo specific
-.archetypes
-.layouts
-.content
-.data
-.i18n
-.static
-.themes
-.hugo_cache
-
-# GitHub Actions
-#.github/workflows/*  # Keep this if you want to manage workflows via git
-
-# OMC state files (temporary interview data)
-.omc/
-.omc/state/
-.omc/sessions/
