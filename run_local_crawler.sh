@@ -3,14 +3,18 @@
 # AI Job Crawler Local Execution Script
 # This script runs the crawler using your local Qwen LLM and pushes results to GitHub.
 
-# 1. 환경 변수 설정 (여기에 본인의 값을 입력하거나 .env 파일을 사용하세요)
-# GCP_CREDENTIALS는 JSON 파일의 경로가 아니라 내용 자체여야 합니다.
-export GEMINI_API_KEY="local" # 로컬 LLM이므로 무시됨
-export CALENDAR_ID="본인의_캘린더_ID"
-export DISCORD_WEBHOOK_URL="본인의_디스코드_웹훅_URL"
-# GCP_CREDENTIALS는 scripts/job_crawler/main.py에서 os.getenv로 읽으므로 
-# 실제 서비스 계정 JSON 내용을 환경변수에 넣어주어야 합니다.
-# export GCP_CREDENTIALS='{...}' 
+# 1. 환경 변수 로드 (.env 파일이 있으면 읽어옴)
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+    echo "✅ Loaded environment variables from .env"
+fi
+
+# 필수 변수 체크
+if [ -z "$CALENDAR_ID" ] || [ -z "$GCP_CREDENTIALS" ]; then
+    echo "❌ Error: CALENDAR_ID or GCP_CREDENTIALS is not set."
+    echo "Please check your .env file."
+    exit 1
+fi
 
 # 2. 가상환경 진입 (선택 사항)
 # source venv/bin/activate
