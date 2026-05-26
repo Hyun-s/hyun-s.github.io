@@ -32,13 +32,13 @@ jobs:
         CALENDAR_ID: ${{ secrets.CALENDAR_ID }}
         DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       run: |
-        cd scripts/job_crawler
-        python main.py
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/scripts/job_crawler
+        python scripts/job_crawler/main.py
 
-    - name: Commit and Push processed_jobs.json
+    - name: Commit and Push changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add processed_jobs.json || echo "No changes to add"
-        git commit -m "chore: update processed jobs state" || echo "No changes to commit"
+        git add processed_jobs.json content/job-report/
+        git commit -m "chore: update processed jobs and daily job reports" || echo "No changes to commit"
         git push || echo "No changes to push"

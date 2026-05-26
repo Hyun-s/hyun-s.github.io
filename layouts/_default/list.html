@@ -1,0 +1,15 @@
+{{ define "main" }}
+<div class="section">
+    <h1 class="section-title">{{ .Title }}</h1>
+    {{ .Content }}
+    
+    <div class="job-report-list">
+        {{ range .Pages.ByDate.Reverse }}
+        <div class="card">
+            <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+            <p>{{ .Date.Format "2006-01-02" }}</p>
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ end }}

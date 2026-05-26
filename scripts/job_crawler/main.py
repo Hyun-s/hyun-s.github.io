@@ -4,6 +4,7 @@ from wanted_scraper import WantedScraper
 from llm_processor import LLMProcessor
 from calendar_manager import CalendarManager, StateManager
 from notifier import DiscordNotifier
+from report_generator import ReportGenerator
 
 # Setup Logging
 logging.basicConfig(
@@ -29,15 +30,23 @@ def main():
     calendar = CalendarManager(gcp_credentials, calendar_id)
     notifier = DiscordNotifier(discord_webhook_url)
     state = StateManager("processed_jobs.json")
+    
+    # Paths relative to the repo root (running from root or scripts/job_crawler)
+    # If running from root: content/job-report
+    # If running from scripts/job_crawler: ../../content/job-report
+    # We'll assume it runs from repo root as per GitHub Action
+    report_gen = ReportGenerator("content/job-report")
 
-    keywords = ["AI Research", "Machine Learning Scientist", "Deep Learning Research"]
+    keywords = ["AI Research", "Machine Learning Scientist", "Deep Learning Research", "LLM Engineer", "Computer Vision Engineer"]
     logger.info(f"Starting job crawl for keywords: {keywords}")
 
     # 1. Search for jobs
-    jobs = scraper.search_jobs(keywords, limit=10)
+    jobs = scraper.search_jobs(keywords, limit=15)
     logger.info(f"Found {len(jobs)} potential jobs.")
 
     new_jobs_count = 0
+    suitable_jobs = []
+
     for job in jobs:
         # Check if already processed
         if state.is_processed(job.id):
@@ -45,10 +54,17 @@ def main():
 
         logger.info(f"Processing new job: {job.title} at {job.company}")
 
-        # 2. Summarize with Gemini
+        # 2. Summarize and Categorize with Gemini
         summary_data = llm.summarize_job(job.title, job.company, job.description)
         if not summary_data:
             logger.warning(f"Skipping job {job.id} due to LLM processing failure.")
+            continue
+
+        # Filter: Check if suitable for newbie/junior (<= 3 years)
+        if not summary_data.get('is_suitable', False):
+            logger.info(f"Skipping job {job.id} - Not suitable for junior level (requested experience too high).")
+            # We still mark it as processed to avoid re-checking
+            state.mark_as_processed(job.id)
             continue
 
         # 3. Add to Google Calendar
@@ -68,11 +84,26 @@ def main():
                 link=job.link
             )
             
+            # Collect for daily report
+            suitable_jobs.append({
+                'title': job.title,
+                'company': job.company,
+                'link': job.link,
+                'summary_data': summary_data
+            })
+            
             state.mark_as_processed(job.id)
             new_jobs_count += 1
             logger.info(f"Successfully processed {job.title} at {job.company}.")
 
-    logger.info(f"Job crawling completed. {new_jobs_count} new jobs processed.")
+    # 5. Generate Daily Report if new jobs found
+    if new_jobs_count > 0:
+        report_path = report_gen.generate_daily_report(suitable_jobs)
+        logger.info(f"Daily report generated at: {report_path}")
+    else:
+        logger.info("No new suitable jobs found today. Skipping report generation.")
+
+    logger.info(f"Job crawling completed. {new_jobs_count} new suitable jobs processed.")
 
 if __name__ == "__main__":
     main()
