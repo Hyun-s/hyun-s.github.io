@@ -44,19 +44,21 @@ class ReportGenerator:
                 domain_map[domain].append(job)
 
             for domain, domain_jobs in domain_map.items():
-                lines.append(f"## 🌐 Domain: {domain}")
+                lines.append(f"## <span class=\"domain-title\">🌐 Domain: {domain}</span>")
                 lines.append("")
                 
                 for job in domain_jobs:
                     s_data = job.get('summary_data', {})
                     lines.append(f"### [{job['company']}] {job['title']}")
+                    lines.append(f"<div class=\"job-report-item\">")
+                    lines.append("")
                     lines.append(f"- **출처:** `{job.get('source', 'Unknown')}`")
                     lines.append(f"- **분류:** `{s_data.get('job_type', 'N/A')}`")
                     lines.append(f"- **요구 경력:** `{s_data.get('experience_requirement', 'N/A')}년`")
                     lines.append(f"- **링크:** [공고 바로가기]({job['link']})")
                     lines.append("")
                     lines.append("#### 📝 직무 요약")
-                    lines.append(s_data.get('role_summary', 'N/A'))
+                    lines.append(s_data.get('role_summary') or s_data.get('role', 'N/A'))
                     lines.append("")
                     lines.append("#### ✅ 필수 요건")
                     for req in s_data.get('key_requirements', []):
@@ -68,6 +70,8 @@ class ReportGenerator:
                     lines.append("")
                     lines.append("#### 💡 핵심 요약")
                     lines.append(s_data.get('summary', 'N/A'))
+                    lines.append("")
+                    lines.append("</div>")
                     lines.append("")
                     lines.append("---")
                     lines.append("")

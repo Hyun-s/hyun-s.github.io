@@ -20,6 +20,11 @@ class DiscordNotifier:
             "color": 3447003, # Blue color
             "fields": [
                 {
+                    "name": "🌐 도메인",
+                    "value": f"`{summary_data.get('domain', 'General AI')}`",
+                    "inline": True
+                },
+                {
                     "name": "📌 포지션",
                     "value": job_title,
                     "inline": True
@@ -31,7 +36,7 @@ class DiscordNotifier:
                 },
                 {
                     "name": "📝 직군 요약",
-                    "value": summary_data.get("role", "N/A"),
+                    "value": summary_data.get("role_summary") or summary_data.get("role", "N/A"),
                     "inline": False
                 },
                 {
@@ -46,7 +51,7 @@ class DiscordNotifier:
                 }
             ],
             "footer": {
-                "text": "AI Job Crawler | GitHub Actions"
+                "text": f"AI Job Crawler | Source: {summary_data.get('source', 'Unknown')}"
             }
         }
 
