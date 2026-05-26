@@ -44,7 +44,11 @@ I'm a dedicated researcher focusing on advancing the field of AI diffusion model
 ## Recent Achievements
 
 <ul>
-  <li>Published research on efficient diffusion model compression techniques</li>
+  <li><strong>[CVPR 2026]</strong> Published "LIFT PLACE" - <a href="https://arxiv.org/pdf/2605.19729" target="_blank">Paper</a> | <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></li>
   <li>Presented at leading AI conferences including NeurIPS and ICML</li>
   <li>Contributed to open-source libraries in computer vision and deep learning</li>
 </ul>
+
+<div class="social-links" style="margin-top: 2rem;">
+  <a href="https://www.linkedin.com/in/%ED%98%84%EC%88%98-%ED%95%9C-228124207/" target="_blank" class="hero-btn">LinkedIn Profile</a>
+</div>

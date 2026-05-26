@@ -39,6 +39,11 @@ date: 2026-05-08
 
 <div class="content-grid">
   <div class="card">
+    <h3>LIFT PLACE: Learning to Improve from Feedback for PLacement and Alignment in Composite Environments</h3>
+    <p><em>CVPR 2026</em></p>
+    <p>A novel framework for improving composite environment placement through feedback loops. <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></p>
+  </div>
+  <div class="card">
     <h3>Efficient Diffusion Model Compression</h3>
     <p><em>NeurIPS 2025</em></p>
     <p>Co-authored paper introducing novel compression techniques for diffusion models.</p>

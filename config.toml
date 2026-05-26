@@ -22,3 +22,8 @@ title = "Hyunsoo Han - Personal Website"
 
 [permalinks]
   section = "/:slug/"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
