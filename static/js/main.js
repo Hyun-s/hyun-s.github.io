@@ -83,13 +83,39 @@ function initializeCalendar() {
     navContainer.appendChild(prevBtn);
     navContainer.appendChild(nextBtn);
 
-    // Month display
-    const monthDisplay = document.createElement('div');
-    monthDisplay.className = 'calendar-month-display';
-    monthDisplay.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+    // Month display and selectors
+    const monthDisplayContainer = document.createElement('div');
+    monthDisplayContainer.className = 'calendar-month-display-container';
+
+    // Year Selector
+    const yearSelect = document.createElement('select');
+    yearSelect.className = 'calendar-year-select';
+    const startYear = currentYear - 10;
+    const endYear = currentYear + 10;
+    for (let y = startYear; y <= endYear; y++) {
+        const option = document.createElement('option');
+        option.value = y;
+        option.textContent = `${y}년`;
+        if (y === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+
+    // Month Selector
+    const monthSelect = document.createElement('select');
+    monthSelect.className = 'calendar-month-select';
+    for (let m = 0; m < 12; m++) {
+        const option = document.createElement('option');
+        option.value = m;
+        option.textContent = `${m + 1}월`;
+        if (m === currentMonth) option.selected = true;
+        monthSelect.appendChild(option);
+    }
+
+    monthDisplayContainer.appendChild(yearSelect);
+    monthDisplayContainer.appendChild(monthSelect);
 
     calendarHeader.appendChild(prevBtn);
-    calendarHeader.appendChild(monthDisplay);
+    calendarHeader.appendChild(monthDisplayContainer);
     calendarHeader.appendChild(nextBtn);
 
     // Create calendar grid
@@ -120,6 +146,7 @@ function initializeCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
         dayCell.className = 'calendar-day';
+        dayCell.title = '일정 관리';
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         dayCell.setAttribute('data-date', dateStr);
 
@@ -134,6 +161,25 @@ function initializeCalendar() {
         const events = getEventsForDate(dateStr);
         if (events.length > 0) {
             dayCell.classList.add('has-events');
+            
+            // Add mini event list to the day cell
+            const miniEventList = document.createElement('div');
+            miniEventList.className = 'mini-event-list';
+            events.slice(0, 2).forEach(event => {
+                const eventDot = document.createElement('div');
+                eventDot.className = 'mini-event-item';
+                eventDot.textContent = event.title;
+                miniEventList.appendChild(eventDot);
+            });
+            
+            if (events.length > 2) {
+                const moreEvents = document.createElement('div');
+                moreEvents.className = 'mini-event-more';
+                moreEvents.textContent = `+${events.length - 2}`;
+                miniEventList.appendChild(moreEvents);
+            }
+            
+            dayCell.appendChild(miniEventList);
         }
 
         // Add click event to show events
@@ -154,6 +200,18 @@ function initializeCalendar() {
     });
     nextBtn.addEventListener('click', function() {
         changeMonth(1);
+    });
+
+    yearSelect.addEventListener('change', function() {
+        currentYear = parseInt(this.value);
+        saveCalendarState();
+        refreshCalendar();
+    });
+
+    monthSelect.addEventListener('change', function() {
+        currentMonth = parseInt(this.value);
+        saveCalendarState();
+        refreshCalendar();
     });
 }
 
@@ -247,7 +305,7 @@ function renderEventListAndForm(date, events, eventListContainer, addFormContain
     if (events.length === 0) {
         const noEventsMsg = document.createElement('p');
         noEventsMsg.className = 'no-events-message';
-        noEventsMsg.textContent = 'No events for this date';
+        noEventsMsg.textContent = '등록된 일정이 없습니다.';
         eventListContainer.appendChild(noEventsMsg);
     } else {
         events.forEach((event, index) => {
@@ -279,8 +337,6 @@ function createEventItem(date, event, index) {
     detailsDiv.style.display = 'none';
     eventItem.appendChild(detailsDiv);
 
-    eventListContainer.appendChild(eventItem);
-
     return eventItem;
 }
 
@@ -300,8 +356,8 @@ function toggleEventDetails(eventItem, date, index) {
             <div class="event-description">${escapeHtml(event.description || '')}</div>
             <div class="event-time">${formatTime(event.startTime || '')} ${event.endTime ? '- ' + formatTime(event.endTime) : ''}</div>
             <div class="event-actions">
-                <button class="edit-btn" data-date="${date}" data-index="${index}">Edit</button>
-                <button class="delete-btn" data-date="${date}" data-index="${index}">Delete</button>
+                <button class="edit-btn" data-date="${date}" data-index="${index}">수정</button>
+                <button class="delete-btn" data-date="${date}" data-index="${index}">삭제</button>
             </div>
         `;
         details.style.display = 'block';
@@ -324,14 +380,14 @@ function createAddEventForm(date) {
     form.dataset.eventDate = date;
 
     form.innerHTML = `
-        <div class="form-divider">Add New Event</div>
-        <input type="text" name="title" class="event-input" placeholder="Event title" required>
-        <textarea name="description" class="event-input" placeholder="Description (optional)" rows="2"></textarea>
+        <div class="form-divider">새 일정 추가</div>
+        <input type="text" name="title" class="event-input" placeholder="일정 제목" required>
+        <textarea name="description" class="event-input" placeholder="설명 (선택사항)" rows="2"></textarea>
         <div class="event-time-inputs">
-            <input type="time" name="startTime" class="event-input" placeholder="Start time">
-            <input type="time" name="endTime" class="event-input" placeholder="End time">
+            <input type="time" name="startTime" class="event-input" title="시작 시간">
+            <input type="time" name="endTime" class="event-input" title="종료 시간">
         </div>
-        <button type="submit" class="event-button add-event-btn">Add Event</button>
+        <button type="submit" class="event-button add-event-btn">일정 추가</button>
     `;
 
     form.addEventListener('submit', (e) => handleFormSubmit(e, date));
@@ -350,13 +406,13 @@ function handleFormSubmit(e, date) {
 
     // Validate title
     if (!title) {
-        alert('Please enter an event title');
+        alert('일정 제목을 입력해주세요.');
         return;
     }
 
     // Validate time
     if (startTime && endTime && startTime > endTime) {
-        alert('End time must be after start time');
+        alert('종료 시간은 시작 시간보다 늦어야 합니다.');
         return;
     }
 
@@ -484,18 +540,18 @@ function editEvent(date, index) {
     editContainer.className = 'edit-event-form';
 
     editContainer.innerHTML = `
-        <div class="form-divider">Edit Event</div>
+        <div class="form-divider">일정 수정</div>
         <input type="text" id="edit-title" class="event-input" value="${escapeHtml(event.title)}" required>
         <textarea id="edit-description" class="event-input" rows="2">${escapeHtml(event.description || '')}</textarea>
         <div class="event-time-inputs">
-            <input type="time" id="edit-start-time" class="event-input" value="${event.startTime || ''}">
-            <input type="time" id="edit-end-time" class="event-input" value="${event.endTime || ''}">
+            <input type="time" id="edit-start-time" class="event-input" value="${event.startTime || ''}" title="시작 시간">
+            <input type="time" id="edit-end-time" class="event-input" value="${event.endTime || ''}" title="종료 시간">
         </div>
-        <button type="button" class="event-button update-event-btn">Update Event</button>
+        <button type="button" class="event-button update-event-btn">일정 업데이트</button>
     `;
 
     // Show modal with edit form
-    const editModal = showInlineModal('Edit Event', '', editContainer);
+    const editModal = showInlineModal('일정 수정', '', editContainer);
 
     // Add event listener for update button
     setTimeout(() => {
@@ -507,12 +563,12 @@ function editEvent(date, index) {
             const newEndTime = document.getElementById('edit-end-time').value;
 
             if (!newTitle) {
-                alert('Please enter an event title');
+                alert('일정 제목을 입력해주세요.');
                 return;
             }
 
             if (newStartTime && newEndTime && newStartTime > newEndTime) {
-                alert('End time must be after start time');
+                alert('종료 시간은 시작 시간보다 늦어야 합니다.');
                 return;
             }
 
@@ -533,7 +589,7 @@ function editEvent(date, index) {
 }
 
 function deleteEvent(date, index) {
-    if (!confirm('Are you sure you want to delete this event?')) return;
+    if (!confirm('이 일정을 삭제하시겠습니까?')) return;
 
     const events = getEventsForDate(date);
     if (events && events[index]) {
@@ -546,3 +602,4 @@ function deleteEvent(date, index) {
         if (modal) modal.remove();
     }
 }
+

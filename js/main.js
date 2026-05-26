@@ -5,9 +5,8 @@
 let calendarContainer = null;
 
 function initCalendar() {
-    if (!calendarContainer) {
-        calendarContainer = document.querySelector('.calendar-container');
-    }
+    // Always re-query for the container in case it wasn't available before
+    calendarContainer = document.querySelector('.calendar-container');
 
     if (calendarContainer) {
         initializeCalendar();
@@ -22,15 +21,102 @@ document.addEventListener('DOMContentLoaded', function() {
     initCalendar();
 });
 
-function initializeCalendar() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
+// Global calendar state
+let currentYear = null;
+let currentMonth = null;
 
-    // Create calendar header
+// Load persisted month state if available
+function loadCalendarState() {
+    try {
+        const savedState = localStorage.getItem('calendar_view_state');
+        if (savedState) {
+            const state = JSON.parse(savedState);
+            if (state.year && state.month !== null) {
+                currentYear = state.year;
+                currentMonth = state.month;
+                return true;
+            }
+        }
+    } catch (e) {
+        // Ignore parse errors
+    }
+    return false;
+}
+
+function saveCalendarState() {
+    try {
+        localStorage.setItem('calendar_view_state', JSON.stringify({
+            year: currentYear,
+            month: currentMonth
+        }));
+    } catch (e) {
+        // Ignore save errors
+    }
+}
+
+function initializeCalendar() {
+    // Load persisted state or use current date
+    if (!loadCalendarState()) {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+    }
+
+    // Create calendar header container
     const calendarHeader = document.createElement('div');
     calendarHeader.className = 'calendar-header';
-    calendarHeader.textContent = `${year}년 ${month + 1}월`;
+
+    // Create navigation controls
+    const navContainer = document.createElement('div');
+    navContainer.className = 'calendar-nav';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'calendar-nav-btn prev';
+    prevBtn.textContent = '<';
+    prevBtn.setAttribute('aria-label', 'Previous month');
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'calendar-nav-btn next';
+    nextBtn.textContent = '>';
+    nextBtn.setAttribute('aria-label', 'Next month');
+
+    navContainer.appendChild(prevBtn);
+    navContainer.appendChild(nextBtn);
+
+    // Month display and selectors
+    const monthDisplayContainer = document.createElement('div');
+    monthDisplayContainer.className = 'calendar-month-display-container';
+
+    // Year Selector
+    const yearSelect = document.createElement('select');
+    yearSelect.className = 'calendar-year-select';
+    const startYear = currentYear - 10;
+    const endYear = currentYear + 10;
+    for (let y = startYear; y <= endYear; y++) {
+        const option = document.createElement('option');
+        option.value = y;
+        option.textContent = `${y}년`;
+        if (y === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+
+    // Month Selector
+    const monthSelect = document.createElement('select');
+    monthSelect.className = 'calendar-month-select';
+    for (let m = 0; m < 12; m++) {
+        const option = document.createElement('option');
+        option.value = m;
+        option.textContent = `${m + 1}월`;
+        if (m === currentMonth) option.selected = true;
+        monthSelect.appendChild(option);
+    }
+
+    monthDisplayContainer.appendChild(yearSelect);
+    monthDisplayContainer.appendChild(monthSelect);
+
+    calendarHeader.appendChild(prevBtn);
+    calendarHeader.appendChild(monthDisplayContainer);
+    calendarHeader.appendChild(nextBtn);
 
     // Create calendar grid
     const calendarGrid = document.createElement('div');
@@ -46,8 +132,8 @@ function initializeCalendar() {
     });
 
     // Get days in month and first day of month
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
     // Add empty cells for days before the first day
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -60,11 +146,12 @@ function initializeCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
         const dayCell = document.createElement('div');
         dayCell.className = 'calendar-day';
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        dayCell.title = '일정 관리';
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         dayCell.setAttribute('data-date', dateStr);
 
         // Highlight today
-        if (isToday(year, month, day)) {
+        if (isToday(currentYear, currentMonth, day)) {
             dayCell.classList.add('today');
         }
 
@@ -74,6 +161,25 @@ function initializeCalendar() {
         const events = getEventsForDate(dateStr);
         if (events.length > 0) {
             dayCell.classList.add('has-events');
+            
+            // Add mini event list to the day cell
+            const miniEventList = document.createElement('div');
+            miniEventList.className = 'mini-event-list';
+            events.slice(0, 2).forEach(event => {
+                const eventDot = document.createElement('div');
+                eventDot.className = 'mini-event-item';
+                eventDot.textContent = event.title;
+                miniEventList.appendChild(eventDot);
+            });
+            
+            if (events.length > 2) {
+                const moreEvents = document.createElement('div');
+                moreEvents.className = 'mini-event-more';
+                moreEvents.textContent = `+${events.length - 2}`;
+                miniEventList.appendChild(moreEvents);
+            }
+            
+            dayCell.appendChild(miniEventList);
         }
 
         // Add click event to show events
@@ -88,8 +194,53 @@ function initializeCalendar() {
     calendarContainer.appendChild(calendarHeader);
     calendarContainer.appendChild(calendarGrid);
 
-    // Add event form
-    addEventForm(calendarContainer);
+    // Add navigation event listeners
+    prevBtn.addEventListener('click', function() {
+        changeMonth(-1);
+    });
+    nextBtn.addEventListener('click', function() {
+        changeMonth(1);
+    });
+
+    yearSelect.addEventListener('change', function() {
+        currentYear = parseInt(this.value);
+        saveCalendarState();
+        refreshCalendar();
+    });
+
+    monthSelect.addEventListener('change', function() {
+        currentMonth = parseInt(this.value);
+        saveCalendarState();
+        refreshCalendar();
+    });
+}
+
+function changeMonth(direction) {
+    currentMonth += direction;
+
+    if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    } else if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    }
+
+    saveCalendarState();
+    refreshCalendar();
+}
+
+function getSelectedDate() {
+    if (currentYear === null || currentMonth === null) {
+        const today = new Date();
+        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+    return `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(getCurrentDay()).padStart(2, '0')}`;
+}
+
+function getCurrentDay() {
+    const today = new Date();
+    return today.getDate();
 }
 
 function isToday(year, month, day) {
@@ -99,58 +250,6 @@ function isToday(year, month, day) {
            today.getDate() === day;
 }
 
-function addEventForm(container) {
-    const form = document.createElement('div');
-    form.className = 'add-event-form';
-    form.innerHTML = `
-        <h3>Add Event</h3>
-        <input type="text" id="event-input" class="event-input" placeholder="Event title" required>
-        <textarea id="event-description" class="event-input" placeholder="Event description"></textarea>
-        <button type="button" class="event-button" id="save-event-btn">Save Event</button>
-    `;
-    container.appendChild(form);
-
-    // Attach event listener after form is added
-    const saveBtn = document.getElementById('save-event-btn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveEvent);
-    }
-
-    // Initialize input event handlers
-    initInputHandlers();
-}
-
-function saveEvent() {
-    const eventInput = document.getElementById('event-input');
-    const descriptionInput = document.getElementById('event-description');
-    const date = getCurrentSelectedDate();
-
-    if (!date || !eventInput.value.trim()) {
-        alert('Please select a date and enter an event title');
-        return;
-    }
-
-    const event = {
-        title: eventInput.value.trim(),
-        description: descriptionInput.value.trim(),
-        date: date,
-        timestamp: new Date().toISOString()
-    };
-
-    const events = getEventsForDate(date);
-    events.push(event);
-
-    localStorage.setItem(`events_${date}`, JSON.stringify(events));
-
-    // Clear form
-    eventInput.value = '';
-    descriptionInput.value = '';
-
-    // Refresh calendar
-    refreshCalendar();
-
-    alert('Event saved successfully!');
-}
 
 function getEventsForDate(date) {
     const storedEvents = localStorage.getItem(`events_${date}`);
@@ -168,22 +267,252 @@ function loadEvents() {
 
 function showEventsForDate(date) {
     const events = getEventsForDate(date);
+    const formattedDate = formatDateDisplay(date);
 
+    // Create the combined dialog content
+    const dialogContent = document.createElement('div');
+    dialogContent.className = 'date-dialog-content';
+
+    // Date header
+    const dateHeader = document.createElement('h3');
+    dateHeader.className = 'date-dialog-header';
+    dateHeader.textContent = formattedDate;
+    dialogContent.appendChild(dateHeader);
+
+    // Event list container
+    const eventListContainer = document.createElement('div');
+    eventListContainer.className = 'date-dialog-event-list';
+    dialogContent.appendChild(eventListContainer);
+
+    // Add event form container
+    const addFormContainer = document.createElement('div');
+    addFormContainer.className = 'date-dialog-add-form';
+    dialogContent.appendChild(addFormContainer);
+
+    // Show modal first
+    const modal = showInlineModal('', '', dialogContent);
+
+    // Render events and form
+    renderEventListAndForm(date, events, eventListContainer, addFormContainer);
+}
+
+function renderEventListAndForm(date, events, eventListContainer, addFormContainer) {
+    // Clear existing content
+    eventListContainer.innerHTML = '';
+    addFormContainer.innerHTML = '';
+
+    // Render event list
     if (events.length === 0) {
-        alert('No events for this date');
+        const noEventsMsg = document.createElement('p');
+        noEventsMsg.className = 'no-events-message';
+        noEventsMsg.textContent = '등록된 일정이 없습니다.';
+        eventListContainer.appendChild(noEventsMsg);
+    } else {
+        events.forEach((event, index) => {
+            const eventItem = createEventItem(date, event, index);
+            eventListContainer.appendChild(eventItem);
+        });
+    }
+
+    // Render add form
+    const form = createAddEventForm(date);
+    addFormContainer.appendChild(form);
+}
+
+function createEventItem(date, event, index) {
+    const eventItem = document.createElement('div');
+    eventItem.className = 'event-item';
+    eventItem.dataset.index = index;
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'event-title';
+    titleDiv.textContent = event.title;
+    titleDiv.style.cursor = 'pointer';
+    titleDiv.addEventListener('click', () => toggleEventDetails(eventItem, date, index));
+    eventItem.appendChild(titleDiv);
+
+    // Details container (hidden by default)
+    const detailsDiv = document.createElement('div');
+    detailsDiv.className = 'event-details';
+    detailsDiv.style.display = 'none';
+    eventItem.appendChild(detailsDiv);
+
+    return eventItem;
+}
+
+function toggleEventDetails(eventItem, date, index) {
+    const details = eventItem.querySelector('.event-details');
+    const isExpanded = details.style.display !== 'none';
+
+    // Close all other expanded items
+    document.querySelectorAll('.event-details').forEach(el => {
+        el.style.display = 'none';
+    });
+
+    if (!isExpanded) {
+        // Show details for this event
+        const event = getEventsForDate(date)[index];
+        details.innerHTML = `
+            <div class="event-description">${escapeHtml(event.description || '')}</div>
+            <div class="event-time">${formatTime(event.startTime || '')} ${event.endTime ? '- ' + formatTime(event.endTime) : ''}</div>
+            <div class="event-actions">
+                <button class="edit-btn" data-date="${date}" data-index="${index}">수정</button>
+                <button class="delete-btn" data-date="${date}" data-index="${index}">삭제</button>
+            </div>
+        `;
+        details.style.display = 'block';
+
+        // Add event listeners
+        details.querySelector('.edit-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            editEvent(date, index);
+        });
+        details.querySelector('.delete-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteEvent(date, index);
+        });
+    }
+}
+
+function createAddEventForm(date) {
+    const form = document.createElement('form');
+    form.className = 'add-event-form-inline';
+    form.dataset.eventDate = date;
+
+    form.innerHTML = `
+        <div class="form-divider">새 일정 추가</div>
+        <input type="text" name="title" class="event-input" placeholder="일정 제목" required>
+        <textarea name="description" class="event-input" placeholder="설명 (선택사항)" rows="2"></textarea>
+        <div class="event-time-inputs">
+            <input type="time" name="startTime" class="event-input" title="시작 시간">
+            <input type="time" name="endTime" class="event-input" title="종료 시간">
+        </div>
+        <button type="submit" class="event-button add-event-btn">일정 추가</button>
+    `;
+
+    form.addEventListener('submit', (e) => handleFormSubmit(e, date));
+
+    return form;
+}
+
+function handleFormSubmit(e, date) {
+    e.preventDefault();
+
+    const form = e.target;
+    const title = form.querySelector('[name="title"]').value.trim();
+    const description = form.querySelector('[name="description"]').value.trim();
+    const startTime = form.querySelector('[name="startTime"]').value;
+    const endTime = form.querySelector('[name="endTime"]').value;
+
+    // Validate title
+    if (!title) {
+        alert('일정 제목을 입력해주세요.');
         return;
     }
 
-    let eventList = `Events for ${date}:\n\n`;
-    events.forEach(event => {
-        eventList += `• ${event.title}\n`;
-        if (event.description) {
-            eventList += `  ${event.description}\n`;
+    // Validate time
+    if (startTime && endTime && startTime > endTime) {
+        alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+        return;
+    }
+
+    const event = {
+        title: title,
+        description: description,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        timestamp: new Date().toISOString()
+    };
+
+    const events = getEventsForDate(date);
+    events.push(event);
+    localStorage.setItem(`events_${date}`, JSON.stringify(events));
+
+    // Re-render the dialog
+    const modal = document.querySelector('.calendar-modal');
+    if (modal) {
+        modal.remove();
+    }
+    showEventsForDate(date);
+
+    // Refresh calendar to show has-events indicator
+    refreshCalendar();
+}
+
+function showInlineModal(title, message, contentElement) {
+    // Remove existing modal if present
+    const existingModal = document.querySelector('.calendar-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'calendar-modal';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'calendar-modal-content';
+
+    const modalTitle = document.createElement('h3');
+    modalTitle.textContent = title;
+
+    const modalMessage = document.createElement('p');
+    modalMessage.textContent = message;
+
+    modalContent.appendChild(modalTitle);
+    if (message) modalContent.appendChild(modalMessage);
+    if (contentElement) modalContent.appendChild(contentElement);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'calendar-modal-close';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.setAttribute('aria-label', 'Close');
+
+    modalContent.appendChild(closeBtn);
+    modal.appendChild(modalContent);
+
+    document.body.appendChild(modal);
+
+    // Close on click outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
         }
-        eventList += '\n';
     });
 
-    alert(eventList);
+    closeBtn.addEventListener('click', function() {
+        modal.remove();
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const currentModal = document.querySelector('.calendar-modal');
+            if (currentModal) {
+                currentModal.remove();
+            }
+        }
+    });
+
+    return modal;
+}
+
+function formatDateDisplay(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('ko-KR', options);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatTime(timeStr) {
+    if (!timeStr || timeStr === '00:00') return '';
+    return timeStr;
 }
 
 function refreshCalendar() {
@@ -196,31 +525,81 @@ function refreshCalendar() {
     }
 }
 
-function getCurrentSelectedDate() {
-    // In a real implementation, this would return the selected date
-    // For now, we'll use today's date
-    const today = new Date();
-    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+function editEvent(date, index) {
+    const events = getEventsForDate(date);
+    if (!events || !events[index]) return;
+
+    const event = events[index];
+
+    // Close current modal
+    const existingModal = document.querySelector('.calendar-modal');
+    if (existingModal) existingModal.remove();
+
+    // Create edit form
+    const editContainer = document.createElement('div');
+    editContainer.className = 'edit-event-form';
+
+    editContainer.innerHTML = `
+        <div class="form-divider">일정 수정</div>
+        <input type="text" id="edit-title" class="event-input" value="${escapeHtml(event.title)}" required>
+        <textarea id="edit-description" class="event-input" rows="2">${escapeHtml(event.description || '')}</textarea>
+        <div class="event-time-inputs">
+            <input type="time" id="edit-start-time" class="event-input" value="${event.startTime || ''}" title="시작 시간">
+            <input type="time" id="edit-end-time" class="event-input" value="${event.endTime || ''}" title="종료 시간">
+        </div>
+        <button type="button" class="event-button update-event-btn">일정 업데이트</button>
+    `;
+
+    // Show modal with edit form
+    const editModal = showInlineModal('일정 수정', '', editContainer);
+
+    // Add event listener for update button
+    setTimeout(() => {
+        const updateBtn = editContainer.querySelector('.update-event-btn');
+        updateBtn.addEventListener('click', () => {
+            const newTitle = document.getElementById('edit-title').value.trim();
+            const newDescription = document.getElementById('edit-description').value.trim();
+            const newStartTime = document.getElementById('edit-start-time').value;
+            const newEndTime = document.getElementById('edit-end-time').value;
+
+            if (!newTitle) {
+                alert('일정 제목을 입력해주세요.');
+                return;
+            }
+
+            if (newStartTime && newEndTime && newStartTime > newEndTime) {
+                alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+                return;
+            }
+
+            events[index] = {
+                title: newTitle,
+                description: newDescription,
+                date: date,
+                startTime: newStartTime,
+                endTime: newEndTime,
+                timestamp: event.timestamp
+            };
+
+            localStorage.setItem(`events_${date}`, JSON.stringify(events));
+            refreshCalendar();
+            editModal.remove();
+        });
+    }, 0);
 }
 
-function initInputHandlers() {
-    // Handle form submission via enter key
-    const eventInput = document.getElementById('event-input');
-    const descriptionInput = document.getElementById('event-description');
+function deleteEvent(date, index) {
+    if (!confirm('이 일정을 삭제하시겠습니까?')) return;
 
-    if (eventInput) {
-        eventInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                saveEvent();
-            }
-        });
-    }
+    const events = getEventsForDate(date);
+    if (events && events[index]) {
+        events.splice(index, 1);
+        localStorage.setItem(`events_${date}`, JSON.stringify(events));
+        refreshCalendar();
 
-    if (descriptionInput) {
-        descriptionInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                saveEvent();
-            }
-        });
+        // Close modal
+        const modal = document.querySelector('.calendar-modal');
+        if (modal) modal.remove();
     }
 }
+
