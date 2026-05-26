@@ -324,6 +324,135 @@ code {
   font-size: 0.85em;
 }
 
+/* Calendar Modal - Polished & Centered */
+.calendar-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.calendar-modal-content {
+  background: white;
+  width: 90%;
+  max-width: 500px;
+  padding: 2.5rem;
+  border-radius: 24px;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.calendar-modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--bg-secondary);
+  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.calendar-modal-close:hover {
+  background: var(--border-subtle);
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.date-dialog-header {
+  margin-bottom: 1.5rem;
+  color: var(--accent-primary);
+}
+
+.event-item {
+  background: var(--bg-secondary);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+}
+
+.event-title {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.event-details {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.event-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-btn, .delete-btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+}
+
+.delete-btn { color: #ef4444; }
+.edit-btn { color: var(--accent-primary); }
+
+.add-event-form-inline {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed var(--border-subtle);
+}
+
+.event-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  font-family: inherit;
+}
+
+.event-button {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+}
+
 /* Footer */
 footer {
   padding: 4rem 0;

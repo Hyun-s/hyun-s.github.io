@@ -26,7 +26,7 @@ class LLMProcessor:
         {description}
 
         [판단 및 요약 규칙]
-        1. domain: 기술 도메인 (예: "Vision", "LLM", "Diffusion", "Audio", "NLP", "Multi-modal", "General AI", "Agentic AI")
+        1. domain: 기술 도메인 (예: "Vision", "LLM", "Diffusion", "Audio", "NLP", "Multi-modal", "General AI", "Agentic AI", "Applied AI")
            - 만약 AI/ML과 직접적인 관련이 없는 일반적인 개발 직군(Front-end, Back-end, DevOps, App Dev 등)이라면 "None-AI"로 분류하세요.
         2. job_type: 구체적 직무 성격 (예: "모델 경량화(Compression)", "모델 개발", "Agent 개발", "Research")
         3. is_suitable: 다음 조건을 **모두** 만족해야 true입니다. 하나라도 어긋나면 false입니다.

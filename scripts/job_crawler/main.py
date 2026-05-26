@@ -44,7 +44,7 @@ def main():
     scrapers = [
         # WantedScraper(),
         InThisWorkScraper(),
-        CatchScraper()
+        # CatchScraper()
     ]
     
     llm = LLMProcessor(gemini_api_key)
@@ -53,12 +53,14 @@ def main():
     state = StateManager("processed_jobs.json")
     report_gen = ReportGenerator("content/job-report")
 
-    keywords = ["AI Engineer", "AI Research Scientist", "AI Research Engineer", "AI Research", "AI Researcher",
-                "Machine Learning Scientist", "Deep Learning Scientist", 
-                "Machine Learning Engineer", "Deep Learning Engineer", 
-                "Machine Learning Research Scientist", "Deep Learning Research Scientist", 
-                "Machine Learning Researcher", "Deep Learning Researcher", 
-                "LLM Engineer", "Computer Vision Engineer"]
+    keywords = ["AI Engineer", 
+                # "AI Research Scientist", "AI Research Engineer", "AI Research", "AI Researcher",
+                # "Machine Learning Scientist", "Deep Learning Scientist", 
+                # "Machine Learning Engineer", "Deep Learning Engineer", 
+                # "Machine Learning Research Scientist", "Deep Learning Research Scientist", 
+                # "Machine Learning Researcher", "Deep Learning Researcher", 
+                # "LLM Engineer", "Computer Vision Engineer"
+                ]
     logger.info(f"Starting job crawl for keywords: {keywords}")
 
     # 1. Search for jobs from all sources
@@ -66,7 +68,7 @@ def main():
     for scraper in scrapers:
         source_name = scraper.__class__.__name__.replace("Scraper", "")
         logger.info(f"Searching for jobs from source: {source_name}")
-        source_jobs = scraper.search_jobs(keywords, limit=20)
+        source_jobs = scraper.search_jobs(keywords, limit=5)
         all_jobs.extend(source_jobs)
         logger.info(f"Found {len(source_jobs)} potential jobs from {source_name}.")
 

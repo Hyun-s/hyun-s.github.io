@@ -38,7 +38,7 @@ class CalendarManager:
         desc_parts = [
             f"🏢 회사: {company}",
             f"🔗 공고 링크: {link}",
-            f"📝 직군 요약: {summary_data.get('role', 'N/A')}",
+            f"📝 직군 요약: {summary_data.get('role_summary') or summary_data.get('role', 'N/A')}",
             "\n⭐ 우대사항:",
         ]
         for pref in summary_data.get("preferences", []):
