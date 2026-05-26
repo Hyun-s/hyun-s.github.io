@@ -30,6 +30,7 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
         CALENDAR_ID: ${{ secrets.CALENDAR_ID }}
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
       run: |
         cd scripts/job_crawler
         python main.py
