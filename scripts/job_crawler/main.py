@@ -41,11 +41,12 @@ def main():
     logger.info(f"Starting job crawl for keywords: {keywords}")
 
     # 1. Search for jobs
-    jobs = scraper.search_jobs(keywords, limit=15)
+    jobs = scraper.search_jobs(keywords, limit=20)
     logger.info(f"Found {len(jobs)} potential jobs.")
 
     new_jobs_count = 0
     suitable_jobs = []
+    skipped_count = 0
 
     for job in jobs:
         # Check if already processed
@@ -62,9 +63,11 @@ def main():
 
         # Filter: Check if suitable for newbie/junior (<= 3 years)
         if not summary_data.get('is_suitable', False):
-            logger.info(f"Skipping job {job.id} - Not suitable for junior level (requested experience too high).")
+            req_exp = summary_data.get('experience_requirement', 'Unknown')
+            logger.info(f"Skipping job {job.id} - Not suitable for junior level (Required: {req_exp} years).")
             # We still mark it as processed to avoid re-checking
             state.mark_as_processed(job.id)
+            skipped_count += 1
             continue
 
         # 3. Add to Google Calendar
