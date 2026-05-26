@@ -3,18 +3,14 @@
 # AI Job Crawler Local Execution Script
 # This script runs the crawler using your local Qwen LLM and pushes results to GitHub.
 
-# 1. 환경 변수 로드 (.env 파일이 있으면 읽어옴)
-if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
-    echo "✅ Loaded environment variables from .env"
-fi
-
-# 필수 변수 체크
-if [ -z "$CALENDAR_ID" ] || [ -z "$GCP_CREDENTIALS" ]; then
-    echo "❌ Error: CALENDAR_ID or GCP_CREDENTIALS is not set."
-    echo "Please check your .env file."
+# 1. 필수 파일 체크
+if [ ! -f .env ]; then
+    echo "❌ Error: .env file not found."
+    echo "Please create a .env file based on .env.example"
     exit 1
 fi
+
+echo "✅ Environment check complete (.env found)"
 
 # 2. 가상환경 진입 (선택 사항)
 # source venv/bin/activate

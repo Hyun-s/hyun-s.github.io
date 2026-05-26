@@ -1,6 +1,7 @@
 import os
 import logging
 import time
+from dotenv import load_dotenv
 from wanted_scraper import WantedScraper
 from llm_processor import LLMProcessor
 from calendar_manager import CalendarManager, StateManager
@@ -15,7 +16,9 @@ logging.basicConfig(
 logger = logging.getLogger("JobCrawlerMain")
 
 def main():
-    # Load Environment Variables
+    # Load Environment Variables from .env file if it exists
+    load_dotenv()
+    
     gemini_api_key = os.getenv("GEMINI_API_KEY")
     gcp_credentials = os.getenv("GCP_CREDENTIALS")
     calendar_id = os.getenv("CALENDAR_ID")
