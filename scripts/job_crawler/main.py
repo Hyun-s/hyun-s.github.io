@@ -17,15 +17,30 @@ logger = logging.getLogger("JobCrawlerMain")
 
 def main():
     # Load Environment Variables from .env file if it exists
-    load_dotenv()
+    loaded = load_dotenv()
+    if loaded:
+        logger.info("Successfully loaded .env file")
+    else:
+        logger.warning(".env file not found or could not be loaded, using existing environment variables")
     
-    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    # Required for LLM (even if 'local')
+    gemini_api_key = os.getenv("GEMINI_API_KEY", "local")
+    
+    # Required for Calendar
     gcp_credentials = os.getenv("GCP_CREDENTIALS")
     calendar_id = os.getenv("CALENDAR_ID")
+    
+    # Optional for Discord
     discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
     
-    if not all([gemini_api_key, gcp_credentials, calendar_id]):
-        logger.error("Missing required environment variables. Please check GEMINI_API_KEY, GCP_CREDENTIALS, and CALENDAR_ID.")
+    # Validation
+    missing_vars = []
+    if not gcp_credentials: missing_vars.append("GCP_CREDENTIALS")
+    if not calendar_id: missing_vars.append("CALENDAR_ID")
+    
+    if missing_vars:
+        logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+        logger.error("Please ensure these are set in your .env file or environment.")
         return
 
     # Initialize components
