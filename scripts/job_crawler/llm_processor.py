@@ -9,8 +9,14 @@ logger = logging.getLogger(__name__)
 class LLMProcessor:
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        # Try different model identifiers to avoid 404
-        self.model_names = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro"]
+        # More exhaustive list including explicit 'models/' prefix and versioned names
+        self.model_names = [
+            "gemini-1.5-flash", 
+            "models/gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro",
+            "gemini-pro"
+        ]
 
     def summarize_job(self, job_title: str, company: str, description: str) -> Optional[Dict]:
         prompt = f"""
@@ -42,13 +48,11 @@ class LLMProcessor:
                 response = model.generate_content(prompt)
                 
                 text = response.text
-                # Clean up JSON if necessary
                 if "```json" in text:
                     text = text.split("```json")[1].split("```")[0].strip()
                 elif "```" in text:
                     text = text.split("```")[1].split("```")[0].strip()
                 
-                # Basic validation that it's JSON
                 data = json.loads(text)
                 logger.info(f"Successfully summarized using {model_name}")
                 return data
@@ -56,5 +60,14 @@ class LLMProcessor:
                 logger.error(f"Failed with model {model_name}: {e}")
                 continue
         
+        # If all failed, list available models to the log for debugging
+        try:
+            logger.info("Listing all available models for this API key:")
+            for m in genai.list_models():
+                if 'generateContent' in m.supported_generation_methods:
+                    logger.info(f"- {m.name}")
+        except Exception as list_err:
+            logger.error(f"Could not list models: {list_err}")
+
         logger.error("All LLM models failed to process the job description.")
         return None
