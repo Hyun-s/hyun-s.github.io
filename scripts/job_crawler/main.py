@@ -3,6 +3,8 @@ import logging
 import time
 from dotenv import load_dotenv
 from wanted_scraper import WantedScraper
+from inthiswork_scraper import InThisWorkScraper
+from catch_scraper import CatchScraper
 from llm_processor import LLMProcessor
 from calendar_manager import CalendarManager, StateManager
 from notifier import DiscordNotifier
@@ -23,14 +25,9 @@ def main():
     else:
         logger.warning(".env file not found or could not be loaded, using existing environment variables")
     
-    # Required for LLM (even if 'local')
     gemini_api_key = os.getenv("GEMINI_API_KEY", "local")
-    
-    # Required for Calendar
     gcp_credentials = os.getenv("GCP_CREDENTIALS")
     calendar_id = os.getenv("CALENDAR_ID")
-    
-    # Optional for Discord
     discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
     
     # Validation
@@ -43,36 +40,46 @@ def main():
         logger.error("Please ensure these are set in your .env file or environment.")
         return
 
-    # Initialize components
-    scraper = WantedScraper()
+    # Initialize scrapers
+    scrapers = [
+        WantedScraper(),
+        InThisWorkScraper(),
+        CatchScraper()
+    ]
+    
     llm = LLMProcessor(gemini_api_key)
     calendar = CalendarManager(gcp_credentials, calendar_id)
     notifier = DiscordNotifier(discord_webhook_url)
     state = StateManager("processed_jobs.json")
-    
-    # Paths relative to the repo root (running from root or scripts/job_crawler)
-    # If running from root: content/job-report
-    # If running from scripts/job_crawler: ../../content/job-report
-    # We'll assume it runs from repo root as per GitHub Action
     report_gen = ReportGenerator("content/job-report")
 
     keywords = ["AI Research", "Machine Learning Scientist", "Deep Learning Research", "LLM Engineer", "Computer Vision Engineer"]
     logger.info(f"Starting job crawl for keywords: {keywords}")
 
-    # 1. Search for jobs
-    jobs = scraper.search_jobs(keywords, limit=20)
-    logger.info(f"Found {len(jobs)} potential jobs.")
+    # 1. Search for jobs from all sources
+    all_jobs = []
+    for scraper in scrapers:
+        source_name = scraper.__class__.__name__.replace("Scraper", "")
+        logger.info(f"Searching for jobs from source: {source_name}")
+        source_jobs = scraper.search_jobs(keywords, limit=20)
+        all_jobs.extend(source_jobs)
+        logger.info(f"Found {len(source_jobs)} potential jobs from {source_name}.")
+
+    logger.info(f"Total potential jobs found: {len(all_jobs)}")
 
     new_jobs_count = 0
     suitable_jobs = []
     skipped_count = 0
 
-    for job in jobs:
+    for job in all_jobs:
         # Check if already processed
-        if state.is_processed(job.id):
+        # Combine source and ID to create a unique identifier if needed, 
+        # but here we'll use the ID as provided by the scraper.
+        unique_id = f"{job.source}_{job.id}"
+        if state.is_processed(unique_id):
             continue
 
-        logger.info(f"Processing new job: {job.title} at {job.company}")
+        logger.info(f"Processing new job: {job.title} at {job.company} ({job.source})")
 
         # 2. Summarize and Categorize with Local LLM
         summary_data = llm.summarize_job(job.title, job.company, job.description)
@@ -81,15 +88,14 @@ def main():
         time.sleep(1)
 
         if not summary_data:
-            logger.warning(f"Skipping job {job.id} due to LLM processing failure.")
+            logger.warning(f"Skipping job {unique_id} due to LLM processing failure.")
             continue
 
         # Filter: Check if suitable for newbie/junior (<= 3 years)
         if not summary_data.get('is_suitable', False):
             req_exp = summary_data.get('experience_requirement', 'Unknown')
-            logger.info(f"Skipping job {job.id} - Not suitable for junior level (Required: {req_exp} years).")
-            # We still mark it as processed to avoid re-checking
-            state.mark_as_processed(job.id)
+            logger.info(f"Skipping job {unique_id} - Not suitable for junior level (Required: {req_exp} years).")
+            state.mark_as_processed(unique_id)
             skipped_count += 1
             continue
 
@@ -115,10 +121,11 @@ def main():
                 'title': job.title,
                 'company': job.company,
                 'link': job.link,
+                'source': job.source,
                 'summary_data': summary_data
             })
             
-            state.mark_as_processed(job.id)
+            state.mark_as_processed(unique_id)
             new_jobs_count += 1
             logger.info(f"Successfully processed {job.title} at {job.company}.")
 
@@ -129,7 +136,7 @@ def main():
     else:
         logger.info("No new suitable jobs found today. Skipping report generation.")
 
-    logger.info(f"Job crawling completed. {new_jobs_count} new suitable jobs processed.")
+    logger.info(f"Job crawling completed. {new_jobs_count} new suitable jobs processed. {skipped_count} skipped.")
 
 if __name__ == "__main__":
     main()

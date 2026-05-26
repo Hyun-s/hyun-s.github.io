@@ -50,6 +50,7 @@ class ReportGenerator:
                 for job in domain_jobs:
                     s_data = job.get('summary_data', {})
                     lines.append(f"### [{job['company']}] {job['title']}")
+                    lines.append(f"- **출처:** `{job.get('source', 'Unknown')}`")
                     lines.append(f"- **분류:** `{s_data.get('job_type', 'N/A')}`")
                     lines.append(f"- **요구 경력:** `{s_data.get('experience_requirement', 'N/A')}년`")
                     lines.append(f"- **링크:** [공고 바로가기]({job['link']})")
