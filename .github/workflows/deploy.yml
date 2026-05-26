@@ -34,6 +34,7 @@ jobs:
           hugo \
             --gc \
             --minify \
+            --buildFuture \
             --baseURL "https://hyun-s.github.io/"
 
       - name: Upload artifact
