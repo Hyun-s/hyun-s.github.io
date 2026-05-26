@@ -9,13 +9,12 @@ logger = logging.getLogger(__name__)
 class LLMProcessor:
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        # More exhaustive list including explicit 'models/' prefix and versioned names
+        # Using confirmed available models from the diagnostic log
         self.model_names = [
-            "gemini-1.5-flash", 
-            "models/gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-1.5-pro",
-            "gemini-pro"
+            "gemini-2.0-flash",           # Confirmed available
+            "models/gemini-2.0-flash",    # Full path
+            "gemini-pro-latest",          # Confirmed alias
+            "gemini-2.0-flash-lite-001"   # Fast fallback
         ]
 
     def summarize_job(self, job_title: str, company: str, description: str) -> Optional[Dict]:
