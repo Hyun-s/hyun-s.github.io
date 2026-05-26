@@ -1,0 +1,67 @@
+import os
+import logging
+from wanted_scraper import WantedScraper
+from llm_processor import LLMProcessor
+from calendar_manager import CalendarManager, StateManager
+
+# Setup Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("JobCrawlerMain")
+
+def main():
+    # Load Environment Variables
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    gcp_credentials = os.getenv("GCP_CREDENTIALS")
+    calendar_id = os.getenv("CALENDAR_ID")
+    
+    if not all([gemini_api_key, gcp_credentials, calendar_id]):
+        logger.error("Missing required environment variables. Please check GEMINI_API_KEY, GCP_CREDENTIALS, and CALENDAR_ID.")
+        return
+
+    # Initialize components
+    scraper = WantedScraper()
+    llm = LLMProcessor(gemini_api_key)
+    calendar = CalendarManager(gcp_credentials, calendar_id)
+    state = StateManager("processed_jobs.json")
+
+    keywords = ["AI Research", "Machine Learning Scientist", "Deep Learning Research"]
+    logger.info(f"Starting job crawl for keywords: {keywords}")
+
+    # 1. Search for jobs
+    jobs = scraper.search_jobs(keywords, limit=10)
+    logger.info(f"Found {len(jobs)} potential jobs.")
+
+    new_jobs_count = 0
+    for job in jobs:
+        # Check if already processed
+        if state.is_processed(job.id):
+            continue
+
+        logger.info(f"Processing new job: {job.title} at {job.company}")
+
+        # 2. Summarize with Gemini
+        summary_data = llm.summarize_job(job.title, job.company, job.description)
+        if not summary_data:
+            logger.warning(f"Skipping job {job.id} due to LLM processing failure.")
+            continue
+
+        # 3. Add to Google Calendar
+        success = calendar.add_job_event(
+            job_title=job.title,
+            company=job.company,
+            summary_data=summary_data,
+            link=job.link
+        )
+
+        if success:
+            state.mark_as_processed(job.id)
+            new_jobs_count += 1
+            logger.info(f"Successfully added {job.title} to calendar.")
+
+    logger.info(f"Job crawling completed. {new_jobs_count} new jobs added to calendar.")
+
+if __name__ == "__main__":
+    main()

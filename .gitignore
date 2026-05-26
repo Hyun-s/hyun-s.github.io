@@ -10,8 +10,18 @@
 /build
 /public
 
+# Logs
+*.log
+tmux-*.log
+
+# Temp files
+*.zip
+*.tmp
+.hugo_build.lock
+
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -22,9 +32,6 @@
 .idea/
 *.swp
 *.swo
-
-# Local files
-.env
 
 # Hugo specific
 .archetypes
@@ -37,8 +44,9 @@
 .hugo_cache
 
 # GitHub Actions
-.github/workflows/*
+#.github/workflows/*  # Keep this if you want to manage workflows via git
 
 # OMC state files (temporary interview data)
+.omc/
 .omc/state/
 .omc/sessions/
