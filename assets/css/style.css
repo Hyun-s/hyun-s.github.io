@@ -140,25 +140,52 @@ main {
   margin-top: 4rem;
 }
 
-/* Professional Cards */
+/* Professional Cards & CV Specifics */
 .content-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
-.card {
-  padding: 2rem;
-  border-radius: 16px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  transition: var(--transition);
+.cv-item {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent-primary);
-  box-shadow: 0 12px 24px -8px rgba(79, 70, 229, 0.1);
+.cv-item:last-child {
+  border-bottom: none;
+}
+
+.cv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.cv-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.cv-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cv-org {
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.cv-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
 }
 
 /* Interests - Subtle Pills */
@@ -184,20 +211,53 @@ main {
   color: var(--accent-primary);
 }
 
-/* Calendar Styles - Refined */
+/* Calendar Styles - Refined & Color Matched */
 .calendar-container {
   background: white;
   border: 1px solid var(--border-subtle);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  margin-top: 2rem;
 }
 
 .calendar-header {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 1.5rem;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-nav-btn {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.calendar-nav-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  transform: translateY(-1px);
+}
+
+.calendar-month-select, .calendar-year-select {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
 }
 
 .calendar-grid {
@@ -209,19 +269,21 @@ main {
 
 .calendar-day {
   background-color: white;
-  min-height: 120px;
-  padding: 1rem;
+  min-height: 110px;
+  padding: 0.75rem;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .calendar-day:hover {
   background-color: var(--bg-secondary);
+  z-index: 2;
 }
 
 .day-number {
   font-weight: 700;
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  margin-bottom: 0.5rem;
 }
 
 .calendar-day.today {
@@ -232,17 +294,17 @@ main {
   color: var(--accent-primary);
 }
 
-/* Mini Events */
 .mini-event-item {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   background: var(--accent-primary);
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
-  margin-bottom: 2px;
+  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 }
 
 /* Job Report Specifics */
