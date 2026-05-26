@@ -57,6 +57,10 @@ def main():
 
         # 2. Summarize and Categorize with Gemini
         summary_data = llm.summarize_job(job.title, job.company, job.description)
+        
+        # Rate Limiting: Sleep to avoid 429 error in free tier
+        time.sleep(5)
+
         if not summary_data:
             logger.warning(f"Skipping job {job.id} due to LLM processing failure.")
             continue

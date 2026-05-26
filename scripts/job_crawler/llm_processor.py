@@ -9,12 +9,12 @@ logger = logging.getLogger(__name__)
 class LLMProcessor:
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        # Using confirmed available models from the diagnostic log
+        # Prioritizing Lite models which usually have higher rate limits in free tier
         self.model_names = [
-            "gemini-2.0-flash",           # Confirmed available
-            "models/gemini-2.0-flash",    # Full path
-            "gemini-pro-latest",          # Confirmed alias
-            "gemini-2.0-flash-lite-001"   # Fast fallback
+            "gemini-2.0-flash-lite",      # Confirmed available, high quota
+            "gemini-2.0-flash",           # Standard
+            "gemini-1.5-flash",           # Classic
+            "gemini-pro-latest"           # Fallback
         ]
 
     def summarize_job(self, job_title: str, company: str, description: str) -> Optional[Dict]:
