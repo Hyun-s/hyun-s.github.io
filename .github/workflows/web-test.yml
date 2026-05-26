@@ -1,0 +1,7 @@
+     name: Web Test
+     on: [push, workflow_dispatch]
+     jobs:
+       test:
+         runs-on: ubuntu-latest
+         steps:
+           - run: echo "Hello from Web UI"
