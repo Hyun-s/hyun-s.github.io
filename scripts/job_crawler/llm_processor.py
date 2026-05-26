@@ -1,15 +1,16 @@
 import os
 import json
 import logging
-from google import genai
+import google.generativeai as genai
 from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 class LLMProcessor:
     def __init__(self, api_key: str):
-        self.client = genai.Client(api_key=api_key)
-        self.model_id = "gemini-1.5-flash"
+        genai.configure(api_key=api_key)
+        # Try different model identifiers to avoid 404
+        self.model_names = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro"]
 
     def summarize_job(self, job_title: str, company: str, description: str) -> Optional[Dict]:
         prompt = f"""
@@ -27,28 +28,26 @@ class LLMProcessor:
         반드시 JSON 형식으로만 답변하세요. 다른 설명은 제외하세요.
         """
 
-        try:
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt
-            )
-            
-            text = response.text
-            # Clean up JSON if necessary
-            if "```json" in text:
-                text = text.split("```json")[1].split("```")[0].strip()
-            elif "```" in text:
-                text = text.split("```")[1].split("```")[0].strip()
-            
-            return json.loads(text)
-        except Exception as e:
-            logger.error(f"Error processing LLM for {job_title} at {company}: {e}")
-            return None
-
-if __name__ == "__main__":
-    # Test with a dummy description
-    api_key = os.getenv("GEMINI_API_KEY")
-    if api_key:
-        processor = LLMProcessor(api_key)
-        result = processor.summarize_job("AI Research Engineer", "Test Company", "우리는 확산 모델 전문가를 찾습니다. PyTorch 숙련자 우대. 마감일은 2026년 12월 31일입니다.")
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+        for model_name in self.model_names:
+            try:
+                logger.info(f"Attempting summarization with model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt)
+                
+                text = response.text
+                # Clean up JSON if necessary
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0].strip()
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0].strip()
+                
+                # Basic validation that it's JSON
+                data = json.loads(text)
+                logger.info(f"Successfully summarized using {model_name}")
+                return data
+            except Exception as e:
+                logger.error(f"Failed with model {model_name}: {e}")
+                continue
+        
+        logger.error("All LLM models failed to process the job description.")
+        return None
