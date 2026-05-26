@@ -8,13 +8,21 @@
     <link rel="stylesheet" href="{{ $styleCSS.Permalink }}">
 </head>
 <body>
-    {{ partial "nav.html" . }}
+    <header>
+        <div class="container header-content">
+            <div class="logo">Hyunsoo Han</div>
+            {{ partial "nav.html" . }}
+        </div>
+    </header>
 
-    <main>
+    <main class="container">
         {{ block "main" . }}{{ end }}
     </main>
 
-    {{ partial "footer.html" . }}
+    <footer class="container">
+        <p>&copy; {{ now.Format "2006" }} Hyunsoo Han. All rights reserved.</p>
+    </footer>
+    
     {{ $mainJS := resources.Get "js/main.js" | resources.Minify | resources.Fingerprint "sha256" }}
     <script src="{{ $mainJS.Permalink }}"></script>
 </body>
