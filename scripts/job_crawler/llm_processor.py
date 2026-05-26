@@ -1,21 +1,19 @@
 import os
 import json
 import logging
-import google.generativeai as genai
+import requests
 from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 class LLMProcessor:
-    def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
-        # Prioritizing Lite models which usually have higher rate limits in free tier
-        self.model_names = [
-            "gemini-2.0-flash-lite",      # Confirmed available, high quota
-            "gemini-2.0-flash",           # Standard
-            "gemini-1.5-flash",           # Classic
-            "gemini-pro-latest"           # Fallback
-        ]
+    def __init__(self, api_key: str = "empty", base_url: str = "http://localhost:8000/v1"):
+        self.base_url = base_url
+        self.model_name = "local-coder" # From your docker-compose config
+        self.headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
 
     def summarize_job(self, job_title: str, company: str, description: str) -> Optional[Dict]:
         prompt = f"""
@@ -40,33 +38,32 @@ class LLMProcessor:
         반드시 JSON 형식으로만 답변하세요. 다른 설명은 제외하세요.
         """
 
-        for model_name in self.model_names:
-            try:
-                logger.info(f"Attempting summarization with model: {model_name}")
-                model = genai.GenerativeModel(model_name)
-                response = model.generate_content(prompt)
-                
-                text = response.text
-                if "```json" in text:
-                    text = text.split("```json")[1].split("```")[0].strip()
-                elif "```" in text:
-                    text = text.split("```")[1].split("```")[0].strip()
-                
-                data = json.loads(text)
-                logger.info(f"Successfully summarized using {model_name}")
-                return data
-            except Exception as e:
-                logger.error(f"Failed with model {model_name}: {e}")
-                continue
-        
-        # If all failed, list available models to the log for debugging
-        try:
-            logger.info("Listing all available models for this API key:")
-            for m in genai.list_models():
-                if 'generateContent' in m.supported_generation_methods:
-                    logger.info(f"- {m.name}")
-        except Exception as list_err:
-            logger.error(f"Could not list models: {list_err}")
+        payload = {
+            "model": self.model_name,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.2,
+            "response_format": {"type": "json_object"}
+        }
 
-        logger.error("All LLM models failed to process the job description.")
-        return None
+        try:
+            logger.info(f"Attempting summarization with local LLM ({self.model_name})")
+            response = requests.post(f"{self.base_url}/chat/completions", headers=self.headers, json=payload, timeout=120)
+            response.raise_for_status()
+            
+            result = response.json()
+            text = result['choices'][0]['message']['content']
+            
+            # Clean up JSON if necessary
+            if "```json" in text:
+                text = text.split("```json")[1].split("```")[0].strip()
+            elif "```" in text:
+                text = text.split("```")[1].split("```")[0].strip()
+            
+            data = json.loads(text)
+            logger.info(f"Successfully summarized using local LLM")
+            return data
+        except Exception as e:
+            logger.error(f"Failed with local LLM: {e}")
+            return None

@@ -56,11 +56,11 @@ def main():
 
         logger.info(f"Processing new job: {job.title} at {job.company}")
 
-        # 2. Summarize and Categorize with Gemini
+        # 2. Summarize and Categorize with Local LLM
         summary_data = llm.summarize_job(job.title, job.company, job.description)
         
-        # Rate Limiting: Sleep to avoid 429 error in free tier
-        time.sleep(5)
+        # Rate Limiting: Minor sleep for local stability
+        time.sleep(1)
 
         if not summary_data:
             logger.warning(f"Skipping job {job.id} due to LLM processing failure.")

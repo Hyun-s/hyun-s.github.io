@@ -1,8 +1,11 @@
-name: AI Job Crawler v2
+name: AI Job Crawler v2 (Manual/Local Trigger)
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
+  # schedule:
+  #   - cron: '0 0 * * *' # 로컬 LLM 연동을 위해 스케줄링 비활성화
+  push:
+    paths:
+      - 'content/job-report/**' # 리포트가 푸시되면 웹사이트 빌드 트리거
   workflow_dispatch:
 
 permissions:
