@@ -13,18 +13,16 @@
     "skills": [],
     "confidence": 0.3,
     "summary_data": {
-      "domain": "applied-ai",
+      "domain": "None-AI",
       "job_type": "General Recruitment",
       "is_suitable": false,
       "experience_requirement": 0,
-      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 업무 여부를 판단할 수 없음. 링크를 통해 상세 내용을 확인해야 함.",
+      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 직무 여부를 판단할 수 없음. 링크를 통해 상세 내용을 확인해야 함.",
       "key_requirements": [],
       "preferences": [],
-      "summary": "현대자동차의 채용 공고이나 본문에 구체적인 직무 내용이 없어 AI/ML 전문성 및 경력 요건 파악 불가. 링크 확인이 필요함.",
-      "deadline": "2026-05-26",
-      "source": "Catch"
+      "summary": "공고 본문에 직무 상세 내용이 없어 AI/ML 전문성 및 경력 요건 파악 불가. 링크 확인이 필요하며, 현재 정보로는 신입~석사급 AI 연구원/엔지니어 적합성 판단 불가."
     },
-    "classified_at": "2026-05-28T14:10:19.343759Z",
+    "classified_at": "2026-05-28T23:25:36.976119Z",
     "manual_override": false
   },
   {
@@ -41,18 +39,16 @@
     "skills": [],
     "confidence": 0.3,
     "summary_data": {
-      "domain": "applied-ai",
+      "domain": "None-AI",
       "job_type": "General Development",
       "is_suitable": false,
       "experience_requirement": 0,
-      "role_summary": "공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 업무인지 판단 불가. 링크를 통해 상세 내용을 확인해야 함.",
+      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 핵심 업무를 확인할 수 없습니다. '우리은행 채용'이라는 포지션명만 존재하며, 링크를 통해 상세 내용을 확인하라는 안내만 있습니다.",
       "key_requirements": [],
       "preferences": [],
-      "summary": "제공된 공고 내용은 '우리은행 채용'이라는 제목과 링크 확인 안내만 포함되어 있어 AI/ML 직무 여부를 확인할 수 없음. 따라서 AI 연구원/엔지니어 적합성 판단 불가.",
-      "deadline": "2026-05-26",
-      "source": "Catch"
+      "summary": "공고 본문에 AI/ML 관련 직무 내용이 명시되어 있지 않아 분석이 불가능합니다. 링크를 통해 상세 내용을 확인해야 하며, 현재 정보로는 AI 연구원/엔지니어 직무로 판단할 수 없습니다."
     },
-    "classified_at": "2026-05-28T14:10:26.956999Z",
+    "classified_at": "2026-05-28T23:25:44.690082Z",
     "manual_override": false
   },
   {
@@ -69,18 +65,16 @@
     "skills": [],
     "confidence": 0.3,
     "summary_data": {
-      "domain": "research",
+      "domain": "None-AI",
       "job_type": "General Development",
       "is_suitable": false,
       "experience_requirement": 0,
-      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 업무를 수행하는지 확인이 불가능합니다. 링크를 통해 상세 내용을 확인해야 합니다.",
+      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 업무를 수행하는지 판단할 수 없습니다. 링크를 통해 상세 내용을 확인해야 합니다.",
       "key_requirements": [],
       "preferences": [],
-      "summary": "공고 본문에 구체적인 직무 내용이 누락되어 AI/ML 관련 직무인지 판단할 수 없습니다. 링크를 통해 상세 내용을 확인해야 합니다.",
-      "deadline": "2026-05-26",
-      "source": "Catch"
+      "summary": "공고 본문에 구체적인 직무 내용이 없어 AI/ML 관련성 및 경력 요건을 확인할 수 없습니다. 링크를 통해 상세 내용을 확인해야 합니다."
     },
-    "classified_at": "2026-05-28T14:10:35.759060Z",
+    "classified_at": "2026-05-28T23:25:51.011486Z",
     "manual_override": false
   },
   {
@@ -97,18 +91,16 @@
     "skills": [],
     "confidence": 0.3,
     "summary_data": {
-      "domain": "research",
+      "domain": "None-AI",
       "job_type": "General Recruitment",
       "is_suitable": false,
       "experience_requirement": 0,
-      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 업무 여부를 판단할 수 없음. 링크를 통해 상세 내용을 확인해야 함.",
+      "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 직무 여부를 판단할 수 없음. 링크를 통해 상세 내용을 확인해야 함.",
       "key_requirements": [],
       "preferences": [],
-      "summary": "공고 본문에 구체적인 직무 내용이 없어 AI/ML 관련성 및 경력 요건 파악 불가. 링크 확인이 필요하며, 현재 정보로는 신입~석사급 AI 연구원/엔지니어 적합성 판단 불가.",
-      "deadline": "2026-05-26",
-      "source": "Catch"
+      "summary": "공고 본문에 직무 상세 내용이 누락되어 AI/ML 전문성 및 경력 요건 분석이 불가능함. 링크 확인이 필요하며, 현재 정보로는 신입~석사급 AI 연구원/엔지니어 적합성 판단 불가."
     },
-    "classified_at": "2026-05-28T14:10:44.148999Z",
+    "classified_at": "2026-05-28T23:25:58.207635Z",
     "manual_override": false
   },
   {
@@ -125,18 +117,16 @@
     "skills": [],
     "confidence": 0.3,
     "summary_data": {
-      "domain": "research",
+      "domain": "None-AI",
       "job_type": "General Recruitment",
       "is_suitable": false,
       "experience_requirement": 0,
       "role_summary": "제공된 공고 본문에 구체적인 직무 내용이 포함되어 있지 않아 AI/ML 관련 직무 여부를 판단할 수 없음. 링크를 통해 상세 내용을 확인해야 함.",
       "key_requirements": [],
       "preferences": [],
-      "summary": "공고 본문에 직무 상세 내용이 누락되어 AI/ML 전문성 및 경력 요건 파악 불가. 링크 확인이 필요하며, 현재 정보로는 신입~석사급 AI 연구원/엔지니어 적합성 판단 불가.",
-      "deadline": "2026-05-26",
-      "source": "Catch"
+      "summary": "공고 본문에 구체적인 직무 내용이 없어 AI/ML 전문성 및 경력 요건 등을 판단할 수 없음. 링크 확인이 필요함."
     },
-    "classified_at": "2026-05-28T14:10:52.046873Z",
+    "classified_at": "2026-05-28T23:26:05.231508Z",
     "manual_override": false
   }
 ]
