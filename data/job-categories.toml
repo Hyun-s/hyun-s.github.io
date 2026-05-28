@@ -1,0 +1,41 @@
+[[categories]]
+name = "Vision"
+slug = "vision"
+color = "#3B82F6"
+description = "Computer Vision, Image Processing, Visual AI"
+keywords = ["computer vision", "image", "visual", "opencv", "detection", "segmentation"]
+
+[[categories]]
+name = "LLM"
+slug = "llm"
+color = "#8B5CF6"
+description = "Large Language Models, NLP, Text Generation"
+keywords = ["llm", "language model", "nlp", "transformer", "gpt", "bert"]
+
+[[categories]]
+name = "Research"
+slug = "research"
+color = "#EC4899"
+description = "AI Research, Academic Research, Research Scientist"
+keywords = ["research", "researcher", "paper", "publication", "academic"]
+
+[[categories]]
+name = "Applied AI"
+slug = "applied-ai"
+color = "#10B981"
+description = "Applied AI Engineer, ML Engineering, Production AI"
+keywords = ["applied", "ml engineer", "inference", "production", "deployment"]
+
+[[categories]]
+name = "ML Infrastructure"
+slug = "ml-infrastructure"
+color = "#F59E0B"
+description = "MLOps, Platform, Infrastructure"
+keywords = ["mlops", "platform", "infrastructure", "kubernetes", "docker"]
+
+[[categories]]
+name = "AI Product"
+slug = "ai-product"
+color = "#6366F1"
+description = "AI Product Manager, Solutions Architect"
+keywords = ["product", "solutions", "premier", "technical pm"]

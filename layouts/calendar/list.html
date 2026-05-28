@@ -1,7 +1,67 @@
 {{ define "main" }}
 <div class="section">
-    <h1 class="section-title">{{ .Title }}</h1>
+    <link rel="stylesheet" href="{{ "css/calendar.css" | relURL }}">
+    <h1 class="section-title">AI Job Calendar</h1>
     {{ .Content }}
-    <div class="calendar-container"></div>
+    
+    <!-- Search and Filters -->
+    <div class="calendar-controls">
+        <div class="search-container">
+            <input type="text" id="job-search" placeholder="Search company or position...">
+        </div>
+        <div class="calendar-filters">
+            {{ range (index .Site.Data "job-categories").categories }}
+            <button class="filter-btn" data-category="{{ .slug }}" style="border-color: {{ .color }}">
+                {{ .name }}
+            </button>
+            {{ end }}
+            <button class="filter-btn active" data-category="all">All</button>
+        </div>
+    </div>
+    
+    <!-- Calendar Container -->
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button id="prev-month">&lt;</button>
+            <h2 id="current-month"></h2>
+            <button id="next-month">&gt;</button>
+        </div>
+        
+        <div class="calendar-grid">
+            <!-- Weekday headers -->
+            <div class="weekday">Sun</div>
+            <div class="weekday">Mon</div>
+            <div class="weekday">Tue</div>
+            <div class="weekday">Wed</div>
+            <div class="weekday">Thu</div>
+            <div class="weekday">Fri</div>
+            <div class="weekday">Sat</div>
+            
+            <!-- Days will be populated by JavaScript -->
+            <div id="calendar-days" style="display: contents;"></div>
+        </div>
+    </div>
 </div>
+
+<!-- Modal Template -->
+<div id="job-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modal-company"></h2>
+        <h3 id="modal-position"></h3>
+        <p><strong>Period:</strong> <span id="modal-period"></span></p>
+        <div id="modal-description" class="modal-description"></div>
+        <p><strong>Skills:</strong> <span id="modal-skills"></span></p>
+        <a id="modal-link" href="#" target="_blank" class="apply-btn">View Job / Apply</a>
+    </div>
+</div>
+
+<script src="{{ "js/calendar.js" | relURL }}"></script>
+<script>
+    const jobsData = {{ jsonify .Site.Data.jobs }};
+    const categoriesData = {{ jsonify (index .Site.Data "job-categories").categories }};
+    new JobCalendar(jobsData, categoriesData);
+</script>
+{{ end }}egoriesData);
+</script>
 {{ end }}

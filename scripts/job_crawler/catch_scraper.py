@@ -1,115 +1,122 @@
 import requests
 import logging
-import json
+from bs4 import BeautifulSoup
 from typing import List, Optional
-from base_scraper import BaseScraper
+from datetime import datetime
 from job_models import JobInfo
 
 logger = logging.getLogger(__name__)
 
-class CatchScraper(BaseScraper):
+class CatchScraper:
     BASE_URL = "https://www.catch.co.kr"
-    # 캐치 채용 검색 AJAX API (POST 방식)
-    API_URL = "https://www.catch.co.kr/NCS/RecruitSearchAjax"
+    CALENDAR_URL = "https://www.catch.co.kr/NCS/RecruitCalendar/Month"
     
     def __init__(self):
-        super().__init__()
-        self.headers.update({
-            "Accept": "*/*",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Referer": "https://www.catch.co.kr/NCS/RecruitSearch"
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
 
-    def search_jobs(self, keywords: List[str], limit: int = 20) -> List[JobInfo]:
-        all_jobs = []
-        for keyword in keywords:
-            logger.info(f"Catch: Searching for '{keyword}' via {self.API_URL}")
-            
-            # 캐치 POST 파라미터
-            # RecruitType: 1(신입), 2(경력), 3(인턴), 4(경력무관)
-            # 여기서는 우선 키워드 기반으로 넓게 검색합니다.
-            data = {
-                "Keyword": keyword,
-                "Order": "1", # 1: 최신순
-                "PageSize": str(limit),
-                "CurrentPage": "1"
-            }
-            
-            try:
-                response = requests.post(self.API_URL, headers=self.headers, data=data, timeout=15)
-                response.raise_for_status()
-                
-                # 캐치 API는 보통 HTML 조각(Snippet)을 반환하는 경우가 많습니다.
-                # 만약 JSON이라면 아래와 같이 처리:
-                try:
-                    json_data = response.json()
-                    items = json_data.get("List", [])
-                    for item in items:
-                        all_jobs.append(self._parse_json_item(item))
-                except json.JSONDecodeError:
-                    # HTML 조각을 반환할 경우 (현재 웹사이트 방식)
-                    from bs4 import BeautifulSoup
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    
-                    # 캐치 검색 결과 리스트 아이템 찾기
-                    # 보통 'li' 태그 안에 정보가 들어있습니다.
-                    list_items = soup.select('li')
-                    for li in list_items:
-                        info = self._parse_html_item(li)
-                        if info:
-                            all_jobs.append(info)
-                            
-            except Exception as e:
-                logger.error(f"Error searching Catch for '{keyword}': {e}")
-                
-        return all_jobs
-
-    def _parse_json_item(self, item: dict) -> JobInfo:
-        job_id = str(item.get("RecruitNo"))
-        return JobInfo(
-            id=job_id,
-            title=item.get("Title"),
-            company=item.get("CompName"),
-            description=f"마감일: {item.get('EndDate')}",
-            deadline=item.get("EndDate"),
-            link=f"{self.BASE_URL}/Recruit/RecruitDetail/{job_id}",
-            source="Catch"
-        )
-
-    def _parse_html_item(self, li) -> Optional[JobInfo]:
+    def crawl_all_jobs(self) -> List[JobInfo]:
+        """Main crawling logic for the monthly calendar"""
+        logger.info(f"Catch: Fetching recruitment calendar from {self.CALENDAR_URL}")
         try:
-            # 제목 및 링크 추출
-            link_elem = li.select_one('.tit a') or li.select_one('a[href*="RecruitDetail"]')
-            if not link_elem: return None
+            response = self.session.get(self.CALENDAR_URL, timeout=15)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
             
-            title = link_elem.get_text(strip=True)
-            href = link_elem.get('href')
+            # Find all job links in the calendar grid
+            # The structure might vary, but usually there are 'a' tags or list items in a calendar table
+            job_links = soup.select('div.cal_list a[href*="RecruitDetail"]')
             
-            # ID 추출 (RecruitDetail/123456 형태)
-            import re
-            match = re.search(r'RecruitDetail/(\d+)', href)
-            job_id = match.group(1) if match else href.split('/')[-1]
+            seen_ids = set()
+            all_jobs = []
             
-            # 회사명 추출
-            company_elem = li.select_one('.comp') or li.select_one('.name')
-            company = company_elem.get_text(strip=True) if company_elem else "Catch Employer"
-            
-            # 마감일 추출
-            deadline_elem = li.select_one('.num_dday') or li.select_one('.date')
-            deadline = deadline_elem.get_text(strip=True) if deadline_elem else None
+            for link in job_links:
+                href = link.get('href')
+                if not href: continue
+                
+                # Full URL or relative path
+                if href.startswith('/'):
+                    detail_url = f"{self.BASE_URL}{href}"
+                else:
+                    detail_url = href
+                
+                # Extract ID for deduplication
+                import re
+                match = re.search(r'RecruitDetail/(\d+)', href)
+                job_id = match.group(1) if match else href.split('/')[-1]
+                
+                if job_id in seen_ids: continue
+                seen_ids.add(job_id)
+                
+                job_info = self.get_job_detail(detail_url, job_id)
+                if job_info:
+                    all_jobs.append(job_info)
+                    
+            return all_jobs
+        except Exception as e:
+            logger.error(f"Error crawling Catch calendar: {e}")
+            return []
 
+    def get_job_detail(self, url: str, job_id: str) -> Optional[JobInfo]:
+        """Fetch detailed job info from the specific recruitment page"""
+        logger.info(f"Catch: Fetching job details from {url}")
+        try:
+            response = self.session.get(url, timeout=15)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            company = soup.select_one('.comp_name').get_text(strip=True) if soup.select_one('.comp_name') else "Catch Employer"
+            title = soup.select_one('.tit').get_text(strip=True) if soup.select_one('.tit') else "Job Position"
+            
+            # Recruitment dates
+            # These are often in a 'dl' or 'div' with specific classes
+            # We need to find "접수기간" or similar
+            date_info = soup.select_one('.rec_term') or soup.select_one('.date')
+            date_text = date_info.get_text(strip=True) if date_info else ""
+            
+            # Parse dates (example format: 2026.05.01 ~ 2026.05.31)
+            start_date, end_date = self._parse_dates(date_text)
+            
+            description = soup.select_one('.view_cont').get_text(strip=True) if soup.select_one('.view_cont') else ""
+            
             return JobInfo(
                 id=job_id,
                 title=title,
                 company=company,
-                description=f"상세 내용은 링크 참조. 마감일: {deadline}",
-                deadline=deadline,
-                link=f"{self.BASE_URL}/Recruit/RecruitDetail/{job_id}",
-                source="Catch"
+                description=description,
+                deadline=end_date, # Fallback/Compatibility
+                link=url,
+                source="Catch",
+                start_date=start_date,
+                end_date=end_date
             )
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error fetching Catch job {job_id}: {e}")
             return None
 
-    def get_job_detail(self, job_id: str) -> Optional[JobInfo]:
-        return None
+    def _parse_dates(self, date_text: str):
+        """Helper to parse recruitment period from text"""
+        # Default to current if parsing fails
+        today = datetime.now().strftime("%Y-%m-%d")
+        start, end = today, today
+        
+        try:
+            # Look for YYYY.MM.DD or YYYY-MM-DD
+            import re
+            dates = re.findall(r'(\d{4}[.\-/]\d{2}[.\-/]\d{2})', date_text)
+            if len(dates) >= 2:
+                start = dates[0].replace('.', '-')
+                end = dates[1].replace('.', '-')
+            elif len(dates) == 1:
+                end = dates[0].replace('.', '-')
+        except Exception:
+            pass
+            
+        return start, end
+
+    # Compatibility methods for main.py (if still using keywords)
+    def search_jobs(self, keywords: List[str], limit: int = 20) -> List[JobInfo]:
+        # For now, just crawl the calendar as it's the primary requirement
+        return self.crawl_all_jobs()

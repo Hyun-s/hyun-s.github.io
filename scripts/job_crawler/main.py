@@ -1,6 +1,10 @@
 import os
 import logging
 import time
+import json
+import subprocess
+import toml
+from datetime import datetime
 from dotenv import load_dotenv
 from wanted_scraper import WantedScraper
 from inthiswork_scraper import InThisWorkScraper
@@ -17,6 +21,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger("JobCrawlerMain")
 
+def load_categories():
+    """Load category configuration from TOML"""
+    path = 'data/job-categories.toml'
+    if os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            config = toml.load(f)
+            return config.get('categories', [])
+    return []
+
+def load_overrides():
+    """Load manual overrides if they exist"""
+    path = 'data/job-overrides.json'
+    if os.path.exists(path):
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+def git_commit_and_push(file_path: str):
+    """Commit and push changes to maintain the Hugo distribution method"""
+    try:
+        logger.info(f"Git: Committing and pushing {file_path}")
+        subprocess.run(["git", "add", file_path], check=True)
+        # Check if there are changes to commit
+        status = subprocess.run(["git", "status", "--porcelain", file_path], capture_output=True, text=True)
+        if status.stdout.strip():
+            subprocess.run(["git", "commit", "-m", f"chore: update job data {datetime.now().strftime('%Y-%m-%d')}"], check=True)
+            subprocess.run(["git", "push"], check=True)
+            logger.info("Git: Successfully pushed changes")
+        else:
+            logger.info("Git: No changes to commit")
+    except Exception as e:
+        logger.warning(f"Git: Failed to commit and push: {e}. This may be expected in some environments.")
+
 def main():
     # Load Environment Variables from .env file if it exists
     loaded = load_dotenv()
@@ -30,120 +67,152 @@ def main():
     calendar_id = os.getenv("CALENDAR_ID")
     discord_webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
     
-    # Validation
-    missing_vars = []
-    if not gcp_credentials: missing_vars.append("GCP_CREDENTIALS")
-    if not calendar_id: missing_vars.append("CALENDAR_ID")
-    
-    if missing_vars:
-        logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
-        logger.error("Please ensure these are set in your .env file or environment.")
-        return
-
-    # Initialize scrapers
-    scrapers = [
-        # WantedScraper(),
-        InThisWorkScraper(),
-        # CatchScraper()
-    ]
-    
+    # Initialize components
     llm = LLMProcessor(gemini_api_key)
-    calendar = CalendarManager(gcp_credentials, calendar_id)
     notifier = DiscordNotifier(discord_webhook_url)
     state = StateManager("processed_jobs.json")
     report_gen = ReportGenerator("content/job-report")
+    
+    # Optional components
+    calendar = None
+    if gcp_credentials and calendar_id:
+        calendar = CalendarManager(gcp_credentials, calendar_id)
 
-    keywords = ["AI Engineer", 
-                "AI Research Scientist", "AI Research Engineer", "AI Research", "AI Researcher",
-                "Machine Learning Scientist", "Deep Learning Scientist", 
-                "Machine Learning Engineer", "Deep Learning Engineer", 
-                "Machine Learning Research Scientist", "Deep Learning Research Scientist", 
-                "Machine Learning Researcher", "Deep Learning Researcher", 
-                "LLM Engineer", "Computer Vision Engineer"
-                ]
-    logger.info(f"Starting job crawl for keywords: {keywords}")
+    # Load configurations
+    categories = load_categories()
+    overrides = load_overrides()
 
-    # 1. Search for jobs from all sources
-    all_jobs = []
-    for scraper in scrapers:
-        source_name = scraper.__class__.__name__.replace("Scraper", "")
-        logger.info(f"Searching for jobs from source: {source_name}")
-        source_jobs = scraper.search_jobs(keywords, limit=20)
-        all_jobs.extend(source_jobs)
-        logger.info(f"Found {len(source_jobs)} potential jobs from {source_name}.")
-
+    # Step 1: Crawl jobs
+    catch_scraper = CatchScraper()
+    logger.info("Starting Catch.co.kr calendar crawl...")
+    all_jobs = catch_scraper.crawl_all_jobs()
+    
     logger.info(f"Total potential jobs found: {len(all_jobs)}")
 
+    processed_data = []
     new_jobs_count = 0
     suitable_jobs = []
-    skipped_count = 0
 
     for job in all_jobs:
-        # Check if already processed
-        # Combine source and ID to create a unique identifier if needed, 
-        # but here we'll use the ID as provided by the scraper.
         unique_id = f"{job.source}_{job.id}"
-        if state.is_processed(unique_id):
-            continue
-
-        logger.info(f"Processing new job: {job.title} at {job.company} ({job.source})")
-
-        # 2. Summarize and Categorize with Local LLM
-        summary_data = llm.summarize_job(job.title, job.company, job.description)
         
-        # Rate Limiting: Minor sleep for local stability
-        time.sleep(1)
-
-        if not summary_data:
-            logger.warning(f"Skipping job {unique_id} due to LLM processing failure.")
-            continue
-
-        # Filter: Check if suitable for newbie/junior (<= 3 years)
-        if not summary_data.get('is_suitable', False):
-            req_exp = summary_data.get('experience_requirement', 'Unknown')
-            logger.info(f"Skipping job {unique_id} - Not suitable for junior level (Required: {req_exp} years).")
-            state.mark_as_processed(unique_id)
-            skipped_count += 1
-            continue
-
-        # 3. Add to Google Calendar
-        success = calendar.add_job_event(
-            job_title=job.title,
-            company=job.company,
-            summary_data=summary_data,
-            link=job.link
-        )
-
-        if success:
-            # 4. Send Discord Notification
-            notifier.send_job_notification(
-                job_title=job.title,
-                company=job.company,
-                summary_data=summary_data,
-                link=job.link
-            )
-            
-            # Collect for daily report
-            suitable_jobs.append({
-                'title': job.title,
-                'company': job.company,
-                'link': job.link,
+        # 2. Classification & Processing
+        job_result = None
+        
+        # Check for manual override first
+        if unique_id in overrides:
+            logger.info(f"Using manual override for {unique_id}")
+            override_data = overrides[unique_id]
+            job_result = {
+                'id': unique_id,
                 'source': job.source,
-                'summary_data': summary_data
-            })
+                'company': job.company,
+                'position': job.title,
+                'description': job.description,
+                'start_date': job.start_date,
+                'end_date': job.end_date,
+                'application_url': job.link,
+                'category': override_data.get('category'),
+                'subcategories': override_data.get('subcategories', []),
+                'skills': override_data.get('skills', []),
+                'confidence': 1.0,
+                'classified_at': datetime.utcnow().isoformat() + 'Z',
+                'manual_override': True
+            }
+        else:
+            # Use LLM for classification
+            classification = llm.classify_job({
+                'company': job.company,
+                'title': job.title,
+                'description': job.description
+            }, categories)
             
-            state.mark_as_processed(unique_id)
-            new_jobs_count += 1
-            logger.info(f"Successfully processed {job.title} at {job.company}.")
+            if classification:
+                category = classification.get('primary_category')
+                
+                # If it's a relevant AI category, get a deeper summary
+                summary_data = {}
+                if category and category != 'others':
+                    logger.info(f"Deep analyzing suitable job: {job.company} - {job.title}")
+                    summary_data = llm.summarize_job(job.title, job.company, job.description) or {}
+                
+                job_result = {
+                    'id': unique_id,
+                    'source': job.source,
+                    'company': job.company,
+                    'position': job.title,
+                    'description': job.description,
+                    'start_date': job.start_date,
+                    'end_date': job.end_date,
+                    'application_url': job.link,
+                    'category': category,
+                    'subcategories': classification.get('subcategories', []),
+                    'skills': classification.get('skills', []),
+                    'confidence': classification.get('confidence', 0),
+                    'summary_data': summary_data, # Store deep summary
+                    'classified_at': datetime.utcnow().isoformat() + 'Z',
+                    'manual_override': False
+                }
+        
+        if job_result:
+            processed_data.append(job_result)
+            
+            # Check if new for notifications/reports
+            if not state.is_processed(unique_id):
+                # Filter/Logic for notifications: notify if AI category or manual override
+                if (job_result.get('category') and job_result.get('category') != 'others') or job_result.get('manual_override'):
+                    
+                    s_data = job_result.get('summary_data', {})
+                    # Ensure some basic fields for notifier/calendar
+                    s_data['deadline'] = job.end_date
+                    s_data['domain'] = job_result.get('category')
+                    s_data['source'] = job.source
 
-    # 5. Generate Daily Report if new jobs found
+                    # Notify Discord
+                    notifier.send_job_notification(
+                        job_title=job.title,
+                        company=job.company,
+                        summary_data=s_data,
+                        link=job.link
+                    )
+                    
+                    # Add to Google Calendar
+                    if calendar:
+                        calendar.add_job_event(
+                            job_title=job.title,
+                            company=job.company,
+                            summary_data=s_data,
+                            link=job.link
+                        )
+                    
+                    # Collect for daily report
+                    suitable_jobs.append({
+                        'title': job.title,
+                        'company': job.company,
+                        'link': job.link,
+                        'source': job.source,
+                        'summary_data': s_data
+                    })
+                    
+                    state.mark_as_processed(unique_id)
+                    new_jobs_count += 1
+
+    # Step 3: Save to Hugo data directory
+    output_path = 'data/jobs.json'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(processed_data, f, ensure_ascii=False, indent=2)
+    
+    logger.info(f"Processed {len(processed_data)} jobs -> {output_path}")
+
+    # Step 4: Generate Daily Report
     if new_jobs_count > 0:
         report_path = report_gen.generate_daily_report(suitable_jobs)
         logger.info(f"Daily report generated at: {report_path}")
-    else:
-        logger.info("No new suitable jobs found today. Skipping report generation.")
 
-    logger.info(f"Job crawling completed. {new_jobs_count} new suitable jobs processed. {skipped_count} skipped.")
+    # Step 5: Git Distribution
+    git_commit_and_push(output_path)
+
+    logger.info(f"Job crawling completed. {new_jobs_count} new suitable jobs processed.")
 
 if __name__ == "__main__":
     main()
