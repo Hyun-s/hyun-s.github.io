@@ -67,12 +67,21 @@ class ReportGenerator:
                     lines.append(s_data.get('role_summary') or s_data.get('role', 'N/A'))
                     lines.append("")
                     lines.append("#### ✅ 필수 요건")
-                    for req in s_data.get('key_requirements', []):
-                        lines.append(f"- {req}")
+                    reqs = s_data.get('key_requirements', [])
+                    if reqs:
+                        for req in reqs:
+                            lines.append(f"- {req}")
+                    else:
+                        lines.append("*상세 페이지를 분석할 수 없어 필수 요건을 추출하지 못했습니다. 공고 링크를 직접 확인해 주세요.*")
                     lines.append("")
+
                     lines.append("#### ⭐ 우대 사항")
-                    for pref in s_data.get('preferences', []):
-                        lines.append(f"- {pref}")
+                    prefs = s_data.get('preferences', [])
+                    if prefs:
+                        for pref in prefs:
+                            lines.append(f"- {pref}")
+                    else:
+                        lines.append("*상세 페이지 분석 실패로 우대 사항 정보가 없습니다.*")
                     lines.append("")
                     lines.append("#### 💡 핵심 요약")
                     lines.append(s_data.get('summary', 'N/A'))
