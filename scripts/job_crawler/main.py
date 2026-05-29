@@ -108,6 +108,7 @@ def main():
     new_raw_jobs = scraper.crawl_all_jobs()
     logger.info(f"Total potential jobs found: {len(new_raw_jobs)}")
     
+    today_str = datetime.now().strftime("%Y-%m-%d")
     suitable_jobs = []
     new_jobs_count = 0
     
@@ -119,6 +120,10 @@ def main():
             overrides = json.load(f)
 
     for job in new_raw_jobs:
+        # Only process jobs matching today's date in the calendar
+        if job.start_date != today_str and job.end_date != today_str:
+            continue
+
         unique_id = f"{job.source}_{job.id}"
         job_result = None
         
@@ -182,8 +187,13 @@ def main():
             
             # Check if really new for notifications/reports
             if not state.is_processed(unique_id):
-                if (job_result.get('category') and job_result.get('category') != 'others') or job_result.get('manual_override'):
-                    s_data = job_result.get('summary_data', {})
+                s_data = job_result.get('summary_data', {})
+                is_manual = job_result.get('manual_override', False)
+                is_ai_suitable = s_data.get('is_suitable', False)
+                domain = s_data.get('domain', '').lower()
+                
+                # Only process if it's manual override OR (classified as AI AND deep analysis confirmed suitability AND not None-AI)
+                if is_manual or (job_result.get('category') != 'others' and is_ai_suitable and domain not in ['none-ai', 'others']):
                     s_data['deadline'] = job.end_date
                     s_data['domain'] = job_result.get('category')
                     s_data['source'] = job.source
@@ -195,6 +205,9 @@ def main():
                     suitable_jobs.append(job_result)
                     state.mark_as_processed(unique_id)
                     new_jobs_count += 1
+                elif job_result.get('category') == 'others' or not is_ai_suitable:
+                    # Mark as processed even if not suitable, so we don't analyze it again
+                    state.mark_as_processed(unique_id)
 
     # Save all jobs back
     processed_list = list(jobs_map.values())

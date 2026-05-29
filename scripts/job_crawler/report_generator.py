@@ -42,20 +42,30 @@ class ReportGenerator:
             # Group by Domain
             domain_map = {}
             for job in jobs:
-                domain = job.get('summary_data', {}).get('domain', 'Others')
+                s_data = job.get('summary_data', {})
+                domain = s_data.get('domain', 'Others')
+                
+                # Skip non-AI domains
+                if domain.lower() in ['others', 'none-ai', 'none']:
+                    continue
+                    
                 if domain not in domain_map:
                     domain_map[domain] = []
                 domain_map[domain].append(job)
 
-            for domain, domain_jobs in domain_map.items():
-                lines.append(f"## <span class=\"domain-title\">🌐 Domain: {domain}</span>")
+            if not domain_map:
+                lines.append("오늘 새로 발견된 적합한 AI 공고가 없습니다. ☕")
+            else:
+                for domain, domain_jobs in sorted(domain_map.items()):
+                    lines.append(f"## <span class=\"domain-title\">🌐 Domain: {domain}</span>")
                 lines.append("")
                 
                 for job in domain_jobs:
                     s_data = job.get('summary_data', {})
                     job_title = job.get('position') or job.get('title') or "N/A"
-                    lines.append(f"### [{job['company']}] {job_title}")
+                    lines.append(f"### [{job['company']}]")
                     lines.append(f"<div class=\"job-report-item\">")
+                    lines.append(f"- **채용 직무:** `{job_title}`")
                     lines.append("")
                     lines.append(f"- **출처:** `{job.get('source', 'Unknown')}`")
                     lines.append(f"- **분류:** `{s_data.get('job_type', 'N/A')}`")
