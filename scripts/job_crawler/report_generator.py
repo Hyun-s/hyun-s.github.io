@@ -49,7 +49,7 @@ class ReportGenerator:
                 s_data = job.get('summary_data', {})
                 domain = s_data.get('domain', 'Others')
                 
-                # Skip non-AI domains
+                # Skip non-AI domains entirely
                 if domain.lower() in ['others', 'none-ai', 'none']:
                     continue
                     
@@ -63,21 +63,36 @@ class ReportGenerator:
                 self._append_jobs_to_lines(lines, domain_map)
 
         if experienced_jobs:
-            lines.append("")
-            lines.append("---")
-            lines.append("## 📌 [참고] 경력직 AI 공고 (3년 초과)")
-            lines.append(f"AI 관련 공고이지만 요구 경력이 높아 주니어 필터링에서 제외된 공고 **{len(experienced_jobs)}건**입니다.")
-            lines.append("")
-            
+            # Filter non-AI from experienced jobs too
             exp_domain_map = {}
+            filtered_exp_count = 0
             for job in experienced_jobs:
                 s_data = job.get('summary_data', {})
                 domain = s_data.get('domain', 'Others')
+                
+                # Skip non-AI domains entirely
+                if domain.lower() in ['others', 'none-ai', 'none']:
+                    continue
+                
+                filtered_exp_count += 1
                 if domain not in exp_domain_map:
                     exp_domain_map[domain] = []
                 exp_domain_map[domain].append(job)
+            
+            if filtered_exp_count > 0:
+                lines.append("")
+                lines.append("---")
+                lines.append("<details>")
+                lines.append(f"<summary><strong>📌 [참고] 경력직 AI 공고 (3년 초과) 보기 ({filtered_exp_count}건)</strong></summary>")
+                lines.append("<div markdown=\"1\" style=\"margin-top: 1rem;\">")
+                lines.append("")
+                lines.append("AI 관련 공고이지만 요구 경력이 높아 주니어 필터링에서 제외된 공고들입니다.")
+                lines.append("")
                 
-            self._append_jobs_to_lines(lines, exp_domain_map, is_experienced=True)
+                self._append_jobs_to_lines(lines, exp_domain_map, is_experienced=True)
+                
+                lines.append("</div>")
+                lines.append("</details>")
 
         content = "\n".join(lines)
         with open(filepath, "w", encoding="utf-8") as f:

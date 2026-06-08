@@ -200,7 +200,12 @@ def main():
                 is_ai_suitable = s_data.get('is_suitable', False)
                 domain = s_data.get('domain', '').lower()
                 
-                is_ai = job_result.get('category') != 'others' and domain not in ['none-ai', 'others', 'none', '']
+                is_ai = job_result.get('category') != 'others' and domain not in ['none-ai', 'others', 'none', 'unknown', '']
+
+                # Additional check: If the summary strongly indicates failure to classify due to missing data, treat as non-AI
+                summary_text = s_data.get('summary', '')
+                if '분석 불가' in summary_text or '확인할 수 없음' in summary_text or '판단 불가' in summary_text or '판단할 수 없음' in summary_text:
+                    is_ai = False
 
                 # Only process if it's manual override OR (classified as AI AND deep analysis confirmed suitability AND not None-AI)
                 if is_manual or (is_ai and is_ai_suitable):
