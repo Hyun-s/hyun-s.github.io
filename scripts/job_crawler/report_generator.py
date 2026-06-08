@@ -97,9 +97,21 @@ class ReportGenerator:
                 lines.append(f"<div class=\"job-report-item\">")
                 lines.append(f"- **채용 직무:** `{job_title}`")
                 lines.append("")
+                
+                # 채용 기간 로직
+                start_date = job.get('start_date', '')
+                end_date = job.get('end_date', '')
+                if "2099" in end_date or "20251231" in end_date or not end_date:
+                    period = "상시 채용"
+                elif start_date and end_date and start_date != end_date:
+                    period = f"{start_date} ~ {end_date}"
+                else:
+                    period = f"~ {end_date} (마감)"
+                
+                lines.append(f"- **채용 기간:** `{period}`")
                 lines.append(f"- **출처:** `{job.get('source', 'Unknown')}`")
                 lines.append(f"- **분류:** `{s_data.get('job_type', 'N/A')}`")
-                lines.append(f"- **요구 경력:** `{s_data.get('experience_requirement', 'N/A')}년`")
+                lines.append(f"- **요구 경력:** `{s_data.get('experience_requirement', 'N/A')}`")
                 job_link = job.get('application_url') or job.get('link') or "#"
                 lines.append(f"- **링크:** [공고 바로가기]({job_link})")
                 lines.append("")
