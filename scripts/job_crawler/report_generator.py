@@ -17,47 +17,79 @@ class ReportGenerator:
         time_str = now.strftime("%H:%M")
         file_time_str = now.strftime("%H%M")
         
+        active_jobs = []
+        closing_jobs = []
+        for job in jobs:
+            end_date = job.get('end_date', '')
+            if end_date == today_str:
+                closing_jobs.append(job)
+            else:
+                active_jobs.append(job)
+                
         main_filename = f"{today_str}-{file_time_str}.md"
         main_filepath = os.path.join(self.output_dir, main_filename)
         
         extra_filename = f"{today_str}-{file_time_str}-experienced.md"
         extra_filepath = os.path.join(self.output_dir, extra_filename)
 
-        # 1. Main Report
+        closed_filename = f"{today_str}-{file_time_str}-closed.md"
+        closed_filepath = os.path.join(self.output_dir, closed_filename)
+
+        # 1. Main Report (Active only)
         main_lines = self._build_frontmatter(f"Daily AI Job Report: {today_str} {time_str}", now)
         main_lines.append(f"# 📅 AI Job Daily Report ({today_str} {time_str})")
         main_lines.append("")
         
         filtered_exp_jobs = self._filter_ai_jobs(experienced_jobs)
+        
         if filtered_exp_jobs:
             link_path = extra_filename.replace('.md', '')
             main_lines.append(f"> 💡 **[경력직 AI 공고 (3년 초과) {len(filtered_exp_jobs)}건 별도 페이지에서 확인하기 🚀](../{link_path}/)**")
             main_lines.append("")
+            
+        if closing_jobs:
+            link_path = closed_filename.replace('.md', '')
+            main_lines.append(f"> 🚨 **[오늘 마감되는 AI 공고 {len(closing_jobs)}건 별도 페이지에서 확인하기 🔥](../{link_path}/)**")
+            main_lines.append("")
 
-        main_lines.append(f"오늘 수집된 공고 중 석사 졸업 및 3년 이하 경력자에게 적합한 주니어급 AI 공고 **{len(jobs)}건**을 정리했습니다.")
+        main_lines.append(f"오늘 수집된 진행중인 주니어급 AI 공고 **{len(active_jobs)}건**을 정리했습니다.")
         main_lines.append("")
 
-        if not jobs:
-            main_lines.append("오늘 새로 발견된 적합한 주니어급 AI 공고가 없습니다. ☕")
+        if not active_jobs:
+            main_lines.append("새로 발견된 진행중인 주니어급 AI 공고가 없습니다. ☕")
         else:
-            self._build_job_sections(main_lines, jobs, today_str)
+            self._append_domain_groups(main_lines, active_jobs, today_str)
 
         with open(main_filepath, "w", encoding="utf-8") as f:
             f.write("\n".join(main_lines))
 
         # 2. Extra Report (Experienced)
         if filtered_exp_jobs:
-            extra_lines = self._build_frontmatter(f"Experienced AI Job Report: {today_str} {time_str}", now)
+            extra_lines = self._build_frontmatter(f"Experienced AI Job Report: {today_str} {time_str}", now, hidden=True)
             extra_lines.append(f"# 👔 경력직 AI Job Report ({today_str} {time_str})")
             extra_lines.append("")
             extra_lines.append(f"> 💡 **[👉 주니어급 AI 공고 리포트로 돌아가기](../{main_filename.replace('.md', '')}/)**")
             extra_lines.append("")
             extra_lines.append(f"AI 관련 공고이지만 요구 경력이 높아(3년 초과) 주니어 필터링에서 제외된 공고 **{len(filtered_exp_jobs)}건**입니다.")
             extra_lines.append("")
-            self._build_job_sections(extra_lines, filtered_exp_jobs, today_str)
+            self._append_domain_groups(extra_lines, filtered_exp_jobs, today_str)
 
             with open(extra_filepath, "w", encoding="utf-8") as f:
                 f.write("\n".join(extra_lines))
+                
+        # 3. Extra Report (Closed)
+        if closing_jobs:
+            closed_lines = self._build_frontmatter(f"Closed AI Job Report: {today_str} {time_str}", now, hidden=True)
+            closed_lines.append(f"# 🚨 오늘 마감 AI Job Report ({today_str} {time_str})")
+            closed_lines.append("")
+            closed_lines.append(f"> 💡 **[👉 진행중인 주니어급 AI 공고 리포트로 돌아가기](../{main_filename.replace('.md', '')}/)**")
+            closed_lines.append("")
+            closed_lines.append(f"오늘 마감되는 주니어급 AI 공고 **{len(closing_jobs)}건**입니다. 지원을 서두르세요!")
+            closed_lines.append("")
+            self._append_domain_groups(closed_lines, closing_jobs, today_str)
+
+            with open(closed_filepath, "w", encoding="utf-8") as f:
+                f.write("\n".join(closed_lines))
                 
         return main_filepath
 
@@ -69,38 +101,19 @@ class ReportGenerator:
                 filtered.append(job)
         return filtered
 
-    def _build_frontmatter(self, title, date_obj):
-        return [
+    def _build_frontmatter(self, title, date_obj, hidden=False):
+        lines = [
             "---",
             f"title: \"{title}\"",
             f"date: {date_obj.isoformat()}",
             f"tags: [\"Job Report\", \"AI\", \"Research\"]",
             "categories: [\"Career\"]",
-            "---",
-            ""
         ]
-
-    def _build_job_sections(self, lines: List[str], jobs: List[Dict], today_str: str):
-        # Group by Active vs Closing Today
-        active_jobs = []
-        closing_jobs = []
-        
-        for job in jobs:
-            end_date = job.get('end_date', '')
-            if end_date == today_str:
-                closing_jobs.append(job)
-            else:
-                active_jobs.append(job)
-                
-        if active_jobs:
-            lines.append("## 🟢 신규 및 진행중인 공고")
-            lines.append("")
-            self._append_domain_groups(lines, active_jobs, today_str)
-            
-        if closing_jobs:
-            lines.append("## 🔴 오늘 마감되는 공고")
-            lines.append("")
-            self._append_domain_groups(lines, closing_jobs, today_str)
+        if hidden:
+            lines.append("hidden: true")
+        lines.append("---")
+        lines.append("")
+        return lines
 
     def _append_domain_groups(self, lines: List[str], jobs: List[Dict], today_str: str):
         domain_map = {}
@@ -121,11 +134,18 @@ class ReportGenerator:
                 start_date = job.get('start_date', '')
                 end_date = job.get('end_date', '')
                 if not end_date or "2099" in end_date or "20251231" in end_date:
-                    period = "상시 채용"
+                    calc_period = "상시 채용"
                 elif start_date and start_date != end_date:
-                    period = f"{start_date} ~ {end_date}"
+                    calc_period = f"{start_date} ~ {end_date}"
                 else:
-                    period = f"마감일: {end_date}"
+                    calc_period = f"마감일: {end_date}"
+                    
+                # Use LLM extracted recruitment_period if available and meaningful
+                llm_period = s_data.get('recruitment_period')
+                if llm_period and llm_period != "..." and len(llm_period) > 3:
+                    period = f"{llm_period} (일정: {calc_period})"
+                else:
+                    period = calc_period
 
                 lines.append(f"#### [{job['company']}]")
                 lines.append(f"<div class=\"job-report-item\">")

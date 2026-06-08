@@ -4,7 +4,8 @@
     {{ .Content }}
     
     <div class="job-report-list">
-        {{ range .Pages.ByDate.Reverse }}
+        {{ $pages := where .Pages.ByDate.Reverse "Params.hidden" "!=" true }}
+        {{ range $pages }}
         <div class="card">
             <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
             <p>{{ .Date.Format "2006-01-02" }}</p>

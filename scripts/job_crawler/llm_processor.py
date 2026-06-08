@@ -154,10 +154,11 @@ class LLMProcessor:
         2. job_type: 구체적 직무 성격
         3. is_suitable: AI 핵심 로직(모델, 에이전트 개발/연구/최적화)을 다루고, 요구 경력이 신입~3년 사이면 true.
         4. experience_requirement: 공고에 명시된 요구 경력 (예: "신입", "경력 3년 이상", "경력 무관" 등 텍스트 그대로 기재)
-        5. role_summary: 주요 업무 구체적 기술
-        6. key_requirements: 필수 자격 요건 (리스트). 텍스트나 이미지에 명시된 내용을 빠짐없이 정확하게 추출하세요.
-        7. preferences: 주요 우대사항 (리스트). 텍스트나 이미지에 적혀있는 우대사항 문구를 생략하지 말고 있는 그대로 추출하세요.
-        8. summary: 공고 핵심 요약 (2-3문장)
+        5. recruitment_period: 공고에 명시된 정확한 채용/접수 기간 (예: "2026.05.26 ~ 2026.06.25 23:59", "채용시 마감", "상시 채용" 등 원본 텍스트 그대로)
+        6. role_summary: 주요 업무 구체적 기술
+        7. key_requirements: 필수 자격 요건 (리스트). 텍스트나 이미지에 명시된 내용을 빠짐없이 정확하게 추출하세요.
+        8. preferences: 주요 우대사항 (리스트). 텍스트나 이미지에 적혀있는 우대사항 문구를 생략하지 말고 있는 그대로 추출하세요.
+        9. summary: 공고 핵심 요약 (2-3문장)
 
         반드시 아래 JSON 형식으로만 답변하세요:
         {{
@@ -165,6 +166,7 @@ class LLMProcessor:
           "job_type": "...",
           "is_suitable": true/false,
           "experience_requirement": "...",
+          "recruitment_period": "...",
           "role_summary": "...",
           "key_requirements": ["..."],
           "preferences": ["..."],
