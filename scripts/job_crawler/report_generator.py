@@ -21,6 +21,11 @@ class ReportGenerator:
         closing_jobs = []
         for job in jobs:
             end_date = job.get('end_date', '')
+            
+            # Skip if already closed before today
+            if end_date and end_date < today_str:
+                continue
+                
             if end_date == today_str:
                 closing_jobs.append(job)
             else:
@@ -133,19 +138,18 @@ class ReportGenerator:
                 
                 start_date = job.get('start_date', '')
                 end_date = job.get('end_date', '')
-                if not end_date or "2099" in end_date or "20251231" in end_date:
-                    calc_period = "상시 채용"
-                elif start_date and start_date != end_date:
-                    calc_period = f"{start_date} ~ {end_date}"
-                else:
-                    calc_period = f"마감일: {end_date}"
-                    
-                # Use LLM extracted recruitment_period if available and meaningful
+                # 1. 우선적으로 LLM이 추출한 원본 채용기간 텍스트를 그대로 사용
                 llm_period = s_data.get('recruitment_period')
                 if llm_period and llm_period != "..." and len(llm_period) > 3:
-                    period = f"{llm_period} (일정: {calc_period})"
+                    period = llm_period
                 else:
-                    period = calc_period
+                    # 2. LLM 추출값이 없을 경우 날짜 데이터로 깔끔하게 조합
+                    if not end_date or "2099" in end_date or "20251231" in end_date:
+                        period = "상시 채용"
+                    elif start_date and start_date != end_date:
+                        period = f"{start_date} ~ {end_date}"
+                    else:
+                        period = f"~ {end_date}"
 
                 lines.append(f"#### [{job['company']}]")
                 lines.append(f"<div class=\"job-report-item\">")
