@@ -129,7 +129,9 @@ class ReportGenerator:
             domain_map[domain].append(job)
             
         for domain, domain_jobs in sorted(domain_map.items()):
-            lines.append(f"### <span class=\"domain-title\">🌐 Domain: {domain}</span>")
+            lines.append(f"<details open>")
+            lines.append(f"<summary><h3 style=\"display:inline-block; margin:0;\">🌐 Domain: {domain} ({len(domain_jobs)}건)</h3></summary>")
+            lines.append("<div markdown=\"1\" style=\"margin-top: 1rem;\">")
             lines.append("")
             
             for job in domain_jobs:
@@ -201,3 +203,7 @@ class ReportGenerator:
                 lines.append("")
                 lines.append("---")
                 lines.append("")
+            
+            lines.append("</div>")
+            lines.append("</details>")
+            lines.append("")

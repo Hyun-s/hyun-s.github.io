@@ -139,7 +139,7 @@ class LLMProcessor:
             logger.error(f"Failed classification with local VLM: {e}")
             return None
 
-    def summarize_job(self, job_title: str, company: str, description: str, image_urls: List[str] = None) -> Optional[Dict]:
+    def summarize_job(self, job_title: str, company: str, description: str, image_urls: List[str] = None, start_date: str = "", end_date: str = "") -> Optional[Dict]:
         has_images = image_urls and len(image_urls) > 0
         prompt = f"""
         당신은 AI/ML 전문 리크루팅 어드바이저입니다. 제공된 텍스트와 이미지를 정밀 분석하여 '신입~석사급 주니어(경력 3년 이하) AI 연구원/엔지니어'에게 적합한지 판단하세요.
@@ -147,14 +147,15 @@ class LLMProcessor:
         공고 내용:
         회사: {company}
         포지션: {job_title}
-        본문: {description[:1000]}
+        수집된 접수기간: {start_date} ~ {end_date}
+        본문: {description[:2000]}
 
         [판단 및 요약 규칙]
         1. domain: 기술 도메인 (예: "Vision", "LLM", "Diffusion", "Audio", "NLP", "Multi-modal", "General AI", "Agentic AI", "Applied AI")
         2. job_type: 구체적 직무 성격
         3. is_suitable: AI 핵심 로직(모델, 에이전트 개발/연구/최적화)을 다루고, 요구 경력이 신입~3년 사이면 true.
         4. experience_requirement: 공고에 명시된 요구 경력 (예: "신입", "경력 3년 이상", "경력 무관" 등 텍스트 그대로 기재)
-        5. recruitment_period: 공고에 명시된 정확한 채용/접수 기간 (예: "2026.05.26 ~ 2026.06.25 23:59", "채용시 마감", "상시 채용" 등 원본 텍스트 그대로)
+        5. recruitment_period: '수집된 접수기간' 정보와 공고(텍스트/이미지) 내용을 종합하여 가장 정확하고 구체적인 접수 기간을 작성하세요. (예: "2026.05.26 ~ 2026.06.25 23:59", "상시 채용", "채용시 마감" 등. 시간까지 있다면 명시할 것.)
         6. role_summary: 주요 업무 구체적 기술
         7. key_requirements: 필수 자격 요건 (리스트). 텍스트나 이미지에 명시된 내용을 빠짐없이 정확하게 추출하세요.
         8. preferences: 주요 우대사항 (리스트). 텍스트나 이미지에 적혀있는 우대사항 문구를 생략하지 말고 있는 그대로 추출하세요.

@@ -169,7 +169,14 @@ def main():
                 summary_data = {}
                 if category and category != 'others':
                     logger.info(f"Deep analyzing suitable job: {job.company} - {job.title}")
-                    summary_data = llm.summarize_job(job.title, job.company, job.description, image_urls=job.images) or {}
+                    summary_data = llm.summarize_job(
+                        job.title, 
+                        job.company, 
+                        job.description, 
+                        image_urls=job.images,
+                        start_date=job.start_date,
+                        end_date=job.end_date
+                    ) or {}
                 
                 job_result = {
                     'id': unique_id,
