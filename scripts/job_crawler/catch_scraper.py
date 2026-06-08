@@ -128,7 +128,7 @@ class CatchScraper:
                             logger.info(f"Fetching job {len(all_jobs)+1}: {company} ({job_id})")
                             detail_url = f"{self.BASE_URL}/NCS/RecruitInfoDetails/{job_id}"
                             
-                            time.sleep(random.uniform(5, 12)) # More conservative delay
+                            time.sleep(random.uniform(1, 3)) # Reduced for testing
                             job_info = self.get_job_detail(detail_url, job_id, company)
                             
                             if not job_info:
@@ -143,7 +143,8 @@ class CatchScraper:
                                     link=detail_url,
                                     source="Catch",
                                     start_date=current_date,
-                                    end_date=current_date
+                                    end_date=current_date,
+                                    images=[]
                                 )
                             
                             if job_info:
@@ -172,6 +173,7 @@ class CatchScraper:
         for attempt in range(2):
             try:
                 response = self.session.get(url, headers=headers, timeout=10)
+                response.encoding = 'utf-8'
                 
                 # If blocked, try to sleep longer and log it
                 if response.status_code == 403:
@@ -212,13 +214,38 @@ class CatchScraper:
                 if desc_tag:
                     description = desc_tag.get_text(strip=True, separator='\n')
                 
-                # If BS4 fails, try NUXT state
-                if len(description) < 100:
-                    logger.info(f"BS4 JD too short, checking NUXT state for {job_id}")
+                # Extract Images
+                images = []
+                # Many Catch jobs are images inside #recr_type_img or .view_cont
+                img_containers = soup.select('#recr_type_img, .view_cont, .rec_view, .job_cont')
+                for container in img_containers:
+                    for img in container.select('img'):
+                        src = img.get('src')
+                        if src:
+                            if src.startswith('//'):
+                                src = 'https:' + src
+                            elif src.startswith('/'):
+                                src = self.BASE_URL + src
+                            if src not in images:
+                                images.append(src)
+                
+                # If BS4 fails to get meaningful text, try NUXT state
+                if len(description) < 100 or not images:
+                    logger.info(f"Checking NUXT state for more data ({job_id})")
                     script_match = re.search(r'window\.__NUXT__=(.*?);?</script>', response.text, re.DOTALL)
                     if script_match:
                         js_code = script_match.group(1).strip()
-                        # Find all Korean strings that look like HTML or JD content
+                        
+                        # Normalize encoded slashes to make regex matching easier
+                        normalized_js = js_code.replace('\\u002F', '/')
+                        
+                        # Look for image URLs in RecruitHTML inside NUXT state
+                        html_images = re.findall(r'https?://imgorg\.catch\.co\.kr/job/recruit/attach/[^\\"\s]*', normalized_js)
+                        for img_url in html_images:
+                            if img_url not in images:
+                                images.append(img_url)
+
+                        # Original NUXT text extraction logic
                         strings = re.findall(r'"([^"]*?[\uac00-\ud7af][^"]*?)"', js_code)
                         if strings:
                             jd_kws = ["자격", "우대", "업무", "절차", "모집", "요건"]
@@ -235,12 +262,12 @@ class CatchScraper:
                                 except:
                                     description = candidates[0]
                 
-                if len(description) < 50:
-                    logger.warning(f"Description too short ({len(description)}) for job {job_id}")
+                if len(description) < 50 and not images:
+                    logger.warning(f"Description and images not found for job {job_id}")
                 else:
-                    logger.info(f"Successfully retrieved JD ({len(description)} chars) for {company}")
+                    logger.info(f"Successfully retrieved job data for {company}: {len(description)} chars, {len(images)} images")
 
-                return JobInfo(job_id, title, company, description, end_date, url, "Catch", start_date, end_date)
+                return JobInfo(job_id, title, company, description, end_date, url, "Catch", start_date, end_date, images)
             except Exception as e:
                 logger.error(f"Attempt {attempt+1} failed for {job_id}: {e}")
                 time.sleep(5)

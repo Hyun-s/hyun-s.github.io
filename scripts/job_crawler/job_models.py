@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, List
 
 @dataclass
 class JobInfo:
@@ -12,3 +12,4 @@ class JobInfo:
     source: str
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    images: List[str] = field(default_factory=list)

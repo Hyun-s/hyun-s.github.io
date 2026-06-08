@@ -50,16 +50,23 @@ class CrawlerState:
 def git_commit_and_push(file_path: str):
     """Automatically commit and push changes to the repository"""
     try:
-        # Check if there are changes
-        status = subprocess.run(["git", "status", "--porcelain", file_path], capture_output=True, text=True, cwd=PROJECT_ROOT)
-        if not status.stdout.strip():
-            logger.info("Git: No changes to commit")
-            return
-
+        # Add the main data file
         subprocess.run(["git", "add", file_path], check=True, cwd=PROJECT_ROOT)
+        
+        # Add processed_ids.json
+        state_file = os.path.join(PROJECT_ROOT, "data", "processed_ids.json")
+        if os.path.exists(state_file):
+            subprocess.run(["git", "add", state_file], cwd=PROJECT_ROOT)
+            
         # Also add reports if any
         subprocess.run(["git", "add", "content/job-report/*.md"], cwd=PROJECT_ROOT)
         
+        # Check if there are any staged changes
+        status = subprocess.run(["git", "diff", "--staged", "--quiet"], cwd=PROJECT_ROOT)
+        if status.returncode == 0:
+            logger.info("Git: No changes to commit")
+            return
+
         date_str = datetime.now().strftime("%Y-%m-%d")
         subprocess.run(["git", "commit", "-m", f"chore: update job data {date_str}"], check=True, cwd=PROJECT_ROOT)
         subprocess.run(["git", "push", "origin", "main"], check=True, cwd=PROJECT_ROOT)
@@ -110,6 +117,7 @@ def main():
     
     today_str = datetime.now().strftime("%Y-%m-%d")
     suitable_jobs = []
+    experienced_jobs = []
     new_jobs_count = 0
     
     # Step 2: Process and Classify
@@ -153,7 +161,7 @@ def main():
                 'company': job.company,
                 'title': job.title,
                 'description': job.description
-            }, categories)
+            }, categories, image_urls=job.images)
             
             if classification:
                 category = classification.get('primary_category')
@@ -161,7 +169,7 @@ def main():
                 summary_data = {}
                 if category and category != 'others':
                     logger.info(f"Deep analyzing suitable job: {job.company} - {job.title}")
-                    summary_data = llm.summarize_job(job.title, job.company, job.description) or {}
+                    summary_data = llm.summarize_job(job.title, job.company, job.description, image_urls=job.images) or {}
                 
                 job_result = {
                     'id': unique_id,
@@ -192,8 +200,10 @@ def main():
                 is_ai_suitable = s_data.get('is_suitable', False)
                 domain = s_data.get('domain', '').lower()
                 
+                is_ai = job_result.get('category') != 'others' and domain not in ['none-ai', 'others', 'none', '']
+
                 # Only process if it's manual override OR (classified as AI AND deep analysis confirmed suitability AND not None-AI)
-                if is_manual or (job_result.get('category') != 'others' and is_ai_suitable and domain not in ['none-ai', 'others']):
+                if is_manual or (is_ai and is_ai_suitable):
                     s_data['deadline'] = job.end_date
                     s_data['domain'] = job_result.get('category')
                     s_data['source'] = job.source
@@ -205,6 +215,13 @@ def main():
                     suitable_jobs.append(job_result)
                     state.mark_as_processed(unique_id)
                     new_jobs_count += 1
+                elif is_ai and not is_ai_suitable:
+                    # AI job but failed suitability (e.g. over experienced)
+                    s_data['deadline'] = job.end_date
+                    s_data['domain'] = job_result.get('category')
+                    s_data['source'] = job.source
+                    experienced_jobs.append(job_result)
+                    state.mark_as_processed(unique_id)
                 elif job_result.get('category') == 'others' or not is_ai_suitable:
                     # Mark as processed even if not suitable, so we don't analyze it again
                     state.mark_as_processed(unique_id)
@@ -215,8 +232,8 @@ def main():
         json.dump(processed_list, f, ensure_ascii=False, indent=2)
     
     # Step 4: Generate Report
-    if suitable_jobs:
-        report_path = report_gen.generate_daily_report(suitable_jobs)
+    if suitable_jobs or experienced_jobs:
+        report_path = report_gen.generate_daily_report(suitable_jobs, experienced_jobs=experienced_jobs)
         logger.info(f"Daily report generated at: {report_path}")
 
     # Step 5: Git Distribution
