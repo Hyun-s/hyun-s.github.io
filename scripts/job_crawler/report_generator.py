@@ -19,14 +19,36 @@ class ReportGenerator:
         
         active_jobs = []
         closing_jobs = []
+        today_date_only = today_str.split(' ')[0]
+        today_slashed = today_date_only.replace('-', '.')
+        
         for job in jobs:
-            end_date = job.get('end_date', '')
+            end_date = job.get('end_date', '').split(' ')[0]
+            s_data = job.get('summary_data', {})
+            llm_period = s_data.get('recruitment_period', '')
             
-            # Skip if already closed before today
-            if end_date and end_date < today_str:
-                continue
-                
-            if end_date == today_str:
+            # Skip if already closed before today (Metadata check)
+            if end_date and end_date < today_date_only:
+                # But allow if LLM says it's still open (e.g. Always open)
+                if not any(kw in llm_period for kw in ["상시", "채용시"]):
+                    continue
+            
+            # Determine if it's closing today
+            is_closing_today = (end_date == today_date_only)
+            
+            # Refine with LLM data: 
+            # If the LLM period mentions a future date explicitly, it's not closing today.
+            # Example: "2026.06.09 ~ 2026.06.22" -> even if metadata says 06.09, trust the 22nd.
+            if llm_period and len(llm_period) > 5:
+                parts = llm_period.split('~')
+                if len(parts) > 1:
+                    final_part = parts[-1].strip()
+                    # If the final part (the actual deadline) doesn't contain today's date,
+                    # but the metadata said today, then it's a future job.
+                    if today_date_only not in final_part and today_slashed not in final_part:
+                        is_closing_today = False
+            
+            if is_closing_today:
                 closing_jobs.append(job)
             else:
                 active_jobs.append(job)
