@@ -6,16 +6,16 @@ description: "M.S. Graduate from UNIST, AI Researcher"
 
 ## About Me
 
-Hi all, I am an M.S. graduate from UNIST AI Graduate School, where I was advised by Prof. Jaejun Yoo. My research interests include multimodal data generation models across video, audio, and text, as well as building robust dataset benchmarks.
+Hi all, I am an M.S. graduate from UNIST AI Graduate School, where I was advised by Prof. Jaejun Yoo. My research interests include **Generative Models**, **Efficient AI Models**, and **Learning Algorithms**. I focus on advancing the field of generative modeling and making machine learning models more efficient and accessible.
 
 ## Research Interests
 
 <div class="interests">
-  <span class="interest-tag">Multimodal Generation</span>
-  <span class="interest-tag">Dataset Benchmarks</span>
+  <span class="interest-tag">Generative Models</span>
+  <span class="interest-tag">Efficient AI Models</span>
+  <span class="interest-tag">Learning Algorithms</span>
   <span class="interest-tag">Diffusion Models</span>
   <span class="interest-tag">Knowledge Distillation</span>
-  <span class="interest-tag">Model Compression</span>
 </div>
 
 ## Featured Project
