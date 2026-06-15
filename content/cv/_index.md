@@ -7,15 +7,6 @@ date: 2026-06-16
 
 <div class="cv-item">
   <div class="cv-header">
-    <div class="cv-title">Integrated M.S./Ph.D. in Artificial Intelligence</div>
-    <div class="cv-date">2026 - Present</div>
-  </div>
-  <div class="cv-org">Ulsan National Institute of Science and Technology (UNIST)</div>
-  <div class="cv-desc">Advisor: Prof. Jaejun Yoo. Researching multimodal generative models and dataset benchmarks.</div>
-</div>
-
-<div class="cv-item">
-  <div class="cv-header">
     <div class="cv-title">M.S. in Artificial Intelligence</div>
     <div class="cv-date">2023 - 2026</div>
   </div>

@@ -1,12 +1,12 @@
 ---
 title: "Hyunsoo Han"
 date: 2026-06-16
-description: "Integrated M.S./Ph.D. student at UNIST"
+description: "M.S. Graduate from UNIST, AI Researcher"
 ---
 
 ## About Me
 
-Hi all, I am an integrated M.S./Ph.D. student at UNIST, advised by Prof. Jaejun Yoo. My research interests include multimodal data generation models across video, audio, and text, as well as building robust dataset benchmarks.
+Hi all, I am an M.S. graduate from UNIST AI Graduate School, where I was advised by Prof. Jaejun Yoo. My research interests include multimodal data generation models across video, audio, and text, as well as building robust dataset benchmarks.
 
 ## Research Interests
 
@@ -40,7 +40,6 @@ Hi all, I am an integrated M.S./Ph.D. student at UNIST, advised by Prof. Jaejun 
 <ul>
   <li><strong>[CVPR 2026]</strong> Published "LIFT and PLACE: A Simple, Stable, and Effective Knowledge Distillation Framework for Lightweight Diffusion Models" - <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></li>
   <li><strong>[IPIU 2026]</strong> Received Bronze Best Paper Award for research on linear regression-based knowledge distillation for diffusion models</li>
-  <li>Integrated M.S./Ph.D. student at UNIST AI Graduate School</li>
 </ul>
 
 <div class="social-links" style="margin-top: 2rem;">
