@@ -1,52 +1,50 @@
 ---
 title: "Hyunsoo Han"
-date: 2026-05-08
-description: "Personal website for Hyunsoo Han, researcher in AI Diffusion Model Compression"
+date: 2026-06-16
+description: "Personal website for Hyunsoo Han, Integrated M.S./Ph.D. student at UNIST"
 ---
 
 # Hyunsoo Han
 
-Researcher in AI Diffusion Model Compression
+Integrated M.S./Ph.D. student at UNIST
 
 ## About Me
 
-Welcome to my personal website. Here you'll find information about my research, academic work, and various projects.
-
-I'm a dedicated researcher focusing on advancing the field of AI diffusion model compression, with a passion for making machine learning more efficient and accessible. My work bridges theoretical research with practical applications in computer vision and deep learning.
+Hi all, I am an integrated M.S./Ph.D. student at UNIST, advised by Prof. Jaejun Yoo. My research interests include multimodal data generation models across video, audio, and text, as well as building robust dataset benchmarks.
 
 ## Research Interests
 
 <div class="interests">
-  <span class="interest-tag">AI Diffusion Models</span>
+  <span class="interest-tag">Multimodal Generation</span>
+  <span class="interest-tag">Dataset Benchmarks</span>
+  <span class="interest-tag">Diffusion Models</span>
+  <span class="interest-tag">Knowledge Distillation</span>
   <span class="interest-tag">Model Compression</span>
-  <span class="interest-tag">Machine Learning Optimization</span>
-  <span class="interest-tag">Computer Vision</span>
-  <span class="interest-tag">Deep Learning</span>
 </div>
 
 ## Featured Projects
 
 <div class="content-grid">
   <div class="card">
-    <h3>Diffusion Model Compression</h3>
-    <p>Developing novel techniques for compressing diffusion models while preserving their generative capabilities.</p>
+    <h3>LIFT and PLACE</h3>
+    <p>A simple, stable, and effective knowledge distillation framework for lightweight diffusion models, published at CVPR 2026.</p>
   </div>
   <div class="card">
-    <h3>Efficient Vision Transformers</h3>
-    <p>Researching methods to make Vision Transformers more computationally efficient for real-world applications.</p>
+    <h3>Align Your CLIP</h3>
+    <p>Research on aligning CLIP models for better semantic understanding and generation.</p>
   </div>
   <div class="card">
-    <h3>Neural Architecture Search</h3>
-    <p>Automated search for optimal neural network architectures in resource-constrained environments.</p>
+    <h3>Dataset Distillation</h3>
+    <p>Leveraging generative models' prior knowledge for efficient dataset distillation techniques.</p>
   </div>
 </div>
 
 ## Recent Achievements
 
 <ul>
-  <li><strong>[CVPR 2026]</strong> Published "LIFT PLACE" - <a href="https://arxiv.org/pdf/2605.19729" target="_blank">Paper</a> | <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></li>
-  <li>Presented at leading AI conferences including NeurIPS and ICML</li>
-  <li>Contributed to open-source libraries in computer vision and deep learning</li>
+  <li><strong>[CVPR 2026]</strong> Published "LIFT and PLACE: A Simple, Stable, and Effective Knowledge Distillation Framework for Lightweight Diffusion Models" - <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></li>
+  <li><strong>[IPIU 2026]</strong> Received Bronze Best Paper Award for research on linear regression-based knowledge distillation for diffusion models</li>
+  <li>Integrated M.S./Ph.D. student at UNIST AI Graduate School</li>
 </ul>
 
 <div class="social-links" style="margin-top: 2rem;">
