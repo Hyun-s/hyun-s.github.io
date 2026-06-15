@@ -18,20 +18,19 @@ Hi all, I am an M.S. graduate from UNIST AI Graduate School, where I was advised
   <span class="interest-tag">Model Compression</span>
 </div>
 
-## Featured Projects
+## Featured Project
 
-<div class="content-grid">
-  <div class="card">
-    <h3>LIFT and PLACE</h3>
-    <p>A simple, stable, and effective knowledge distillation framework for lightweight diffusion models, published at CVPR 2026.</p>
+<div class="featured-project-card">
+  <div class="project-image">
+    <img src="/images/Poster_thumbnail_CVPR_2026_LIFT_PLACE_Main.png" alt="LIFT and PLACE CVPR 2026 Poster Thumbnail" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
   </div>
-  <div class="card">
-    <h3>Align Your CLIP</h3>
-    <p>Research on aligning CLIP models for better semantic understanding and generation.</p>
-  </div>
-  <div class="card">
-    <h3>Dataset Distillation</h3>
-    <p>Leveraging generative models' prior knowledge for efficient dataset distillation techniques.</p>
+  <div class="project-info" style="margin-top: 1.5rem;">
+    <h3>LIFT and PLACE: A Simple, Stable, and Effective Knowledge Distillation Framework for Lightweight Diffusion Models</h3>
+    <p style="color: var(--primary-color); font-weight: 600; margin-bottom: 0.5rem;">CVPR 2026 (Poster)</p>
+    <p>We propose <strong>LIFT and PLACE</strong>, a novel knowledge distillation framework that addresses the capacity gap between teacher and student diffusion models through a simple yet effective "easy-to-hard" learning strategy.</p>
+    <div style="margin-top: 1rem;">
+      <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank" class="hero-btn" style="padding: 0.5rem 1.2rem; font-size: 0.9rem;">Project Page</a>
+    </div>
   </div>
 </div>
 
