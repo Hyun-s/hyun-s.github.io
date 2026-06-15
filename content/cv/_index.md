@@ -1,6 +1,6 @@
 ---
 title: "Curriculum Vitae"
-date: 2026-05-08
+date: 2026-06-16
 ---
 
 # Curriculum Vitae
@@ -9,58 +9,100 @@ date: 2026-05-08
 
 <div class="cv-item">
   <div class="cv-header">
-    <div class="cv-title">PhD in Computer Science</div>
+    <div class="cv-title">Integrated M.S./Ph.D. in Artificial Intelligence</div>
     <div class="cv-date">2026 - Present</div>
   </div>
-  <div class="cv-org">University of [Your University]</div>
-  <div class="cv-desc">Thesis: "Efficient Compression Techniques for Diffusion Models"</div>
+  <div class="cv-org">Ulsan National Institute of Science and Technology (UNIST)</div>
+  <div class="cv-desc">Advisor: Prof. Jaejun Yoo. Researching multimodal generative models and dataset benchmarks.</div>
 </div>
 
 <div class="cv-item">
   <div class="cv-header">
-    <div class="cv-title">MSc in Artificial Intelligence</div>
-    <div class="cv-date">2024 - 2026</div>
+    <div class="cv-title">M.S. in Artificial Intelligence</div>
+    <div class="cv-date">2023 - 2026</div>
   </div>
-  <div class="cv-org">[University Name]</div>
-  <div class="cv-desc">Specialization: Machine Learning and Deep Learning. Focused on model efficiency and NAS.</div>
+  <div class="cv-org">Ulsan National Institute of Science and Technology (UNIST)</div>
+  <div class="cv-desc">Thesis: "Bridging the Capacity Gap in Diffusion Models via Easy-to-Hard Knowledge Distillation". Advisor: Prof. Jaejun Yoo.</div>
+</div>
+
+<div class="cv-item">
+  <div class="cv-header">
+    <div class="cv-title">B.S. in Human-Centered Artificial Intelligence & AI Convergence</div>
+    <div class="cv-date">2017 - 2023</div>
+  </div>
+  <div class="cv-org">Sangmyung University</div>
+  <div class="cv-desc">Double Major in Human-Centered AI and AI Convergence.</div>
 </div>
 
 ## Experience
 
 <div class="cv-item">
   <div class="cv-header">
-    <div class="cv-title">Research Scientist</div>
-    <div class="cv-date">2026 - Present</div>
+    <div class="cv-title">Graduate Researcher & Server Administrator</div>
+    <div class="cv-date">2023 - 2026</div>
   </div>
-  <div class="cv-org">[Company/Organization]</div>
-  <div class="cv-desc">Leading research initiatives in AI model compression and optimization. Collaborating with cross-functional teams to deploy efficient generative models.</div>
+  <div class="cv-org">Lab. of Advanced Imaging Technology (LAIT), UNIST</div>
+  <div class="cv-desc">Conducted research on diffusion model compression and knowledge distillation. Managed laboratory GPU servers and computing resources.</div>
 </div>
 
 <div class="cv-item">
   <div class="cv-header">
-    <div class="cv-title">Research Assistant</div>
-    <div class="cv-date">2024 - 2026</div>
+    <div class="cv-title">Research Intern</div>
+    <div class="cv-date">2022 - 2023</div>
   </div>
-  <div class="cv-org">[University/Institution]</div>
-  <div class="cv-desc">Contributed to projects on diffusion models and neural architecture search. Published multiple papers in top-tier conferences.</div>
+  <div class="cv-org">Lab. of Advanced Imaging Technology (LAIT), UNIST</div>
+  <div class="cv-desc">Investigated GAN inversion techniques for few-shot and out-of-domain data.</div>
 </div>
 
 ## Publications
 
 <div class="card" style="margin-bottom: 1.5rem;">
-  <h3 style="margin-bottom: 0.5rem;">LIFT PLACE: Learning to Improve from Feedback for PLacement and Alignment in Composite Environments</h3>
+  <h3 style="margin-bottom: 0.5rem;">LIFT and PLACE: A Simple, Stable, and Effective Knowledge Distillation Framework for Lightweight Diffusion Models</h3>
   <p style="color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">CVPR 2026</p>
-  <p class="cv-desc">A novel framework for improving composite environment placement through feedback loops. <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></p>
+  <p class="cv-desc">Hyunsoo Han, Sangyeop Yeo, Jaejun Yoo. IEEE/CVF Conference on Computer Vision and Pattern Recognition. <a href="https://hyun-s.github.io/LIFT_PLACE_site/" target="_blank">Project Page</a></p>
 </div>
 
 <div class="card" style="margin-bottom: 1.5rem;">
-  <h3 style="margin-bottom: 0.5rem;">Efficient Diffusion Model Compression</h3>
-  <p style="color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">NeurIPS 2025</p>
-  <p class="cv-desc">Co-authored paper introducing novel compression techniques for diffusion models. Reduced model size by 4x with minimal quality loss.</p>
+  <h3 style="margin-bottom: 0.5rem;">Knowledge Distillation based on Linear Regression for Lightweight Diffusion Models (Korean)</h3>
+  <p style="color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">IPIU 2026</p>
+  <p class="cv-desc">Hyunsoo Han, Sangyeop Yeo, Jaejun Yoo. Workshop on Image Processing and Understanding.</p>
 </div>
 
-<div class="card">
-  <h3 style="margin-bottom: 0.5rem;">Accelerated Vision Transformers</h3>
-  <p style="color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">ICML 2024</p>
-  <p class="cv-desc">Research on computational efficiency improvements for Vision Transformers via token pruning and quantization.</p>
+## Projects
+
+<div class="cv-item">
+  <div class="cv-header">
+    <div class="cv-title">Dataset Distillation via Generative Prior</div>
+    <div class="cv-date">2024</div>
+  </div>
+  <div class="cv-org">UNIST</div>
+  <div class="cv-desc">Developed techniques to distill large datasets using prior knowledge from generative models.</div>
+</div>
+
+<div class="cv-item">
+  <div class="cv-header">
+    <div class="cv-title">Align Your CLIP</div>
+    <div class="cv-date">2024</div>
+  </div>
+  <div class="cv-org">UNIST</div>
+  <div class="cv-desc">Deep Learning course project focusing on aligning CLIP models for enhanced semantic generation.</div>
+</div>
+
+## Awards
+
+<ul>
+  <li><strong>Bronze Best Paper Award</strong>, IPIU 2026</li>
+  <li><strong>Teaching Assistant Award</strong>, Basic AI Programming 2, UNIST, 2024</li>
+  <li><strong>Creative Award</strong>, ROK Army Startup Competition, 2019</li>
+</ul>
+
+## Technical Skills
+
+<div class="interests">
+  <span class="interest-tag">Python</span>
+  <span class="interest-tag">PyTorch</span>
+  <span class="interest-tag">HuggingFace Diffusers</span>
+  <span class="interest-tag">Linux</span>
+  <span class="interest-tag">Docker</span>
+  <span class="interest-tag">Slurm</span>
 </div>
