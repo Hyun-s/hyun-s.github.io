@@ -3,8 +3,6 @@ title: "Curriculum Vitae"
 date: 2026-06-16
 ---
 
-# Curriculum Vitae
-
 ## Education
 
 <div class="cv-item">

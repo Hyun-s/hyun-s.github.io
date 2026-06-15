@@ -1,12 +1,8 @@
 ---
 title: "Hyunsoo Han"
 date: 2026-06-16
-description: "Personal website for Hyunsoo Han, Integrated M.S./Ph.D. student at UNIST"
+description: "Integrated M.S./Ph.D. student at UNIST"
 ---
-
-# Hyunsoo Han
-
-Integrated M.S./Ph.D. student at UNIST
 
 ## About Me
 

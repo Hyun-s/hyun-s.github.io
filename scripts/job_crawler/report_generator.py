@@ -64,7 +64,6 @@ class ReportGenerator:
 
         # 1. Main Report (Active only)
         main_lines = self._build_frontmatter(f"Daily AI Job Report: {today_str} {time_str}", now)
-        main_lines.append(f"# 📅 AI Job Daily Report ({today_str} {time_str})")
         main_lines.append("")
         
         filtered_exp_jobs = self._filter_ai_jobs(experienced_jobs)
@@ -93,7 +92,6 @@ class ReportGenerator:
         # 2. Extra Report (Experienced)
         if filtered_exp_jobs:
             extra_lines = self._build_frontmatter(f"Experienced AI Job Report: {today_str} {time_str}", now, hidden=True)
-            extra_lines.append(f"# 👔 경력직 AI Job Report ({today_str} {time_str})")
             extra_lines.append("")
             extra_lines.append(f"> 💡 **[👉 주니어급 AI 공고 리포트로 돌아가기](../{main_filename.replace('.md', '')}/)**")
             extra_lines.append("")
@@ -107,7 +105,6 @@ class ReportGenerator:
         # 3. Extra Report (Closed)
         if closing_jobs:
             closed_lines = self._build_frontmatter(f"Closed AI Job Report: {today_str} {time_str}", now, hidden=True)
-            closed_lines.append(f"# 🚨 오늘 마감 AI Job Report ({today_str} {time_str})")
             closed_lines.append("")
             closed_lines.append(f"> 💡 **[👉 진행중인 주니어급 AI 공고 리포트로 돌아가기](../{main_filename.replace('.md', '')}/)**")
             closed_lines.append("")
